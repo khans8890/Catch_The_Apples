@@ -26,7 +26,7 @@ background= add([
 //   move(DOWN, 240),
 
 // ])
-let count = 1
+
 loop(rand(20,25), () => {
   // add tree
   add([
@@ -37,8 +37,8 @@ loop(rand(20,25), () => {
     scale(.2),
     move(DOWN, 240),
   ])
-  count++
 });
+
 // add something to screen
 barrel = add([
   sprite("barrel"),
@@ -47,15 +47,17 @@ barrel = add([
   pos(0, 500),
   area()
 ])
-console.log(rand(vec2(width())).x)
-let barrelSpeed = 400
 
+let barrelSpeed = 400
 
 barrel.onUpdate(() => {
   if (mousePos().x > 86 && mousePos().x < width() - 86 || barrel.pos.x > 0 && barrel.pos.x < width() - 170) {
     barrel.moveTo(mousePos().x - 86, 500, barrelSpeed)
   }
 })
+// timer
+// score
+// 
 barrel.onCollide('tag1', (power) => {
   barrelSpeed = 1000
   destroy(power)
