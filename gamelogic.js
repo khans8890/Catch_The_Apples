@@ -6,10 +6,11 @@ loadSprite("barrel", "myNewBarrel.png")
 loadSprite('speedPower', 'testingPower.jpg')
 loadSprite("apple", "apple.png");
 gravity(80)
+loadSprite("reset", "restart.png")
 
-var score = 0;
+var score = 4;
 var countDown = 60;
-let timeOfGame = 5;
+var timeOfGame = 0;
 
 // background
 loadSprite("clearsky", "background2.jpg")
@@ -128,7 +129,7 @@ scene("game", () => {
     scoreText.text = `Score: ${score}`;
   })
 
-  //timer
+  // timer
   loop(1, () => {
     countDown--
     
@@ -155,17 +156,51 @@ scene("game", () => {
 
 })
 scene("gameOver", () => {
-  let scoreText = add([
-    text(`GameOver`),
-    pos(10, height() - 100)
+  let background = add([
+    sprite("clearsky"),
+    pos(width() / 2, height() / 2),
+    origin("center"),
+    scale(2),
+    fixed()
+  ]);
+  let gameOverText = add([
+    text("Game Over!"),
+    scale(1.25),
+    pos(750, 50),
+    color(255,217,75),
   ])
- })
+ 
+ let scoreText = add([
+    text("Score:"),
+    pos(860, 200),
+ ])
+ 
+ let scoreVal = add([
+  text(`${score}`),
+  pos(890, 350),
+  scale(1.26)
+ ])
+
+
+let reset = add([
+  sprite("reset"),
+  scale(.6),
+  area(),
+  pos(880, 500),
+  "reset-button"
+
+])
+onClick("reset-button",()=>{
+  go('game')
+  timeOfGame = 60;
+})
+});
+
 function isGameOver() { 
   if (timeOfGame > 0) {
-    go('game')
+    go('game');
   } else {
-    go('gameOver')
+    go('gameOver');
   }
 }
-isGameOver()
-
+isGameOver();
