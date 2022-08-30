@@ -11,7 +11,16 @@ let score = 0;
 let countDown = 60;
 let timeOfGame = 120;
 
+// background
+loadSprite("clearsky", "background2.jpg")
 
+let background = add([
+  sprite("clearsky"),
+  pos(width() / 2, height() / 2),
+  origin("center"),
+  scale(2),
+  fixed()
+]);
 
 add([
   pos(0, height() - 100),
@@ -19,7 +28,7 @@ add([
   outline(4),
   'floor',
   area(),
-  color(0, 186, 31)
+  color(102, 189, 88)
 ])
 onCollide('fallingApple', 'floor', (ap,) => {
   destroy(ap)
@@ -29,6 +38,7 @@ let scoreText = add([
   text(`Score: ${score}`),
   pos(10, height() - 100)
 ])
+
 let timer = add([
   text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`),
   pos(width() - 520,height()-100)
@@ -52,16 +62,6 @@ const pauseAudio = document.body.querySelectorAll("button")[1];
   }
   });
 
-  // background
-  loadSprite("clearsky", "background2.jpg")
-
-  let background = add([
-    sprite("clearsky"),
-    pos(width() / 2, height() / 2),
-    origin("center"),
-    scale(2),
-    fixed()
-  ]);
 
 
 loop(rand(25,30), () => {
