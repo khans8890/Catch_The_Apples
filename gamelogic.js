@@ -1,33 +1,40 @@
 // initialize kaboom context
-kaboom();
-
+let kB = kaboom();
 // add a piece of text at position (120, 80)
 loadSprite("background", "testingbackground.gif")
-loadSprite("barrel", "testingBarrel.png")
+loadSprite("barrel", "myNewBarrel.png")
 loadSprite('speedPower', 'testingPower.jpg')
+loadSprite("apple", "apple.png");
+gravity(80)
 
-background= add([
-  sprite('background'),
-  pos(width() / 3, height() / 2),
-  origin("center"),
-  // Allow the background to be scaled
-  scale(.6),
+let score = 0;
+let countDown = 60;
+let timeOfGame = 120;
+
+
+
+add([
+  pos(0, height() - 100),
+  rect(width(), 100),
+  outline(4),
+  'floor',
   area(),
-  // Keep the background position fixed even when the camera moves
-  fixed()
-
+  color(0, 186, 31)
 ])
-// power = add([
-//   sprite('speedPower'),
-//   pos(rand(vec2(width())).x, 10),
-//   'tag1',
-//   area(),
-//   scale(.2),
-//   move(DOWN, 240),
+onCollide('fallingApple', 'floor', (ap,) => {
+  destroy(ap)
+})
 
-// ])
+let scoreText = add([
+  text(`Score: ${score}`),
+  pos(10, height() - 100)
+])
+let timer = add([
+  text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`),
+  pos(width() - 520,height()-100)
+])
 
-loop(rand(20,25), () => {
+loop(rand(25,30), () => {
   // add tree
   add([
     sprite('speedPower'),
@@ -39,7 +46,6 @@ loop(rand(20,25), () => {
   ])
 });
 
-// add something to screen
 barrel = add([
   sprite("barrel"),
   scale(0.2),
@@ -55,40 +61,55 @@ barrel.onUpdate(() => {
     barrel.moveTo(mousePos().x - 86, 500, barrelSpeed)
   }
 })
-// timer
-// score
-// 
+
 barrel.onCollide('tag1', (power) => {
   barrelSpeed = 1000
   destroy(power)
   wait(10, () => {
-    console.log('2')
     barrelSpeed = 400
   })
 })
-
-// adding the apples
-loadSprite("apple", "apple.png");
+let spawnSpeed = 1
+let appleFallSpeed = 150
+let spawnRate = 1;
 
 // functionality of apple
-add([
-    sprite("apple"),
-    scale(0.05),
-    pos(300, 10),
-    move(DOWN, 40),
-    
-])
+loop(spawnSpeed, () => {
+  for (let i = 0; i < spawnRate; i++) {
+    add([
+      sprite("apple"),
+      scale(0.05),
+      pos(rand(vec2(width())).x, -100),
+      //move(DOWN, rand(appleFallSpeed-100, appleFallSpeed+100)),
+      area(),
+      body(),
+      'fallingApple',
+    ])
+  }
+})
 
-// score counter 
-let score = 0;
-const scoreLabel = add([
-    text(score),
-    pos(24, 24)
-])
+barrel.onCollide('fallingApple', (fallingApple) => {
+  destroy(fallingApple);
+  score+=5;
+  scoreText.text = `Score: ${score}`;
+})
 
-
-// increment counter when collision happens
-// onUpdate(() => {
-//     score++;
-//     scoreLabel.text = score;
-// });
+//timer
+loop(1, () => { 
+  countDown--
+  if (countDown % 10 === 0) { 
+    if (spawnSpeed > 0.3) {
+      spawnSpeed -= 0.2
+    } else if (spawnSpeed > 0.05) { 
+      spawnSpeed = spawnSpeed - 0.02
+    }
+    if (appleFallSpeed < 500) {
+      appleFallSpeed += 50
+    }
+  }
+  if (countDown % 20 === 0 && spawnRate < 10) { 
+    spawnRate++
+  }
+  timeOfGame--
+  timer.text = `Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`;
+})
