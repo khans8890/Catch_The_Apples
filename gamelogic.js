@@ -1,24 +1,37 @@
 // initialize kaboom context
-kaboom();
-
+let kB = kaboom();
 // add a piece of text at position (120, 80)
 loadSprite("background", "testingbackground.gif")
-loadSprite("barrel", "testingBarrel.png")
+loadSprite("barrel", "myNewBarrel.png")
 loadSprite('speedPower', 'testingPower.jpg')
 loadSprite("apple", "apple.png");
 gravity(80)
+
 let score = 0;
 let countDown = 60;
-background= add([
-  sprite('background'),
-  pos(width() / 3, height() / 2),
-  origin("center"),
-  // Allow the background to be scaled
-  scale(.6),
-  area(),
-  // Keep the background position fixed even when the camera moves
-  fixed()
+let timeOfGame = 120;
 
+
+
+add([
+  pos(0, height() - 100),
+  rect(width(), 100),
+  outline(4),
+  'floor',
+  area(),
+  color(0, 186, 31)
+])
+onCollide('fallingApple', 'floor', (ap,) => {
+  destroy(ap)
+})
+
+let scoreText = add([
+  text(`Score: ${score}`),
+  pos(10, height() - 100)
+])
+let timer = add([
+  text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`),
+  pos(width() - 520,height()-100)
 ])
 
 loop(rand(25,30), () => {
@@ -53,7 +66,6 @@ barrel.onCollide('tag1', (power) => {
   barrelSpeed = 1000
   destroy(power)
   wait(10, () => {
-    console.log('2')
     barrelSpeed = 400
   })
 })
@@ -78,7 +90,8 @@ loop(spawnSpeed, () => {
 
 barrel.onCollide('fallingApple', (fallingApple) => {
   destroy(fallingApple);
-  score++;
+  score+=5;
+  scoreText.text = `Score: ${score}`;
 })
 
 //timer
@@ -94,19 +107,9 @@ loop(1, () => {
       appleFallSpeed += 50
     }
   }
-  if (countDown % 10 === 0 && spawnRate < 10) { 
+  if (countDown % 20 === 0 && spawnRate < 10) { 
     spawnRate++
   }
-})
-
-add([
-  pos(0, height()-40),
-  rect(width()-20,40),
-  outline(4),
-  'floor',
-  area(),
-])
-onCollide('fallingApple', 'floor',(ap,fl)=> {
-  destroy(ap)
-  console.log(score)
+  timeOfGame--
+  timer.text = `Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`;
 })
