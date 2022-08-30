@@ -1,21 +1,55 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-app.js";
+import { getDatabase, onValue, ref, set } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-database.js";
+import db from './database.js';
+let isTwoPayer = false;
+// function makeid(length) {
+//   var result = '';
+//   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//   var charactersLength = characters.length;
+//   for (var i = 0; i < length; i++) {
+//     result += characters.charAt(Math.floor(Math.random() *
+//       charactersLength));
+//   }
+//   return result;
+// }
+let gamedata = {
+  reference:''
+}
+let button = document.getElementById('removesthis')
+button.addEventListener('click', () => {
+  isTwoPayer = true
+
+  gamedata.reference = ref(db, 'jmfSLwU5/')
+  
+  set(gamedata.reference, {
+    playerOnePoints: 0,
+    playerTwoPoints: 0
+  })
+
+  console.log(gamedata)
+})
+  
+
 // initialize kaboom context
 let kB = kaboom();
+
 // add a piece of text at position (120, 80)
 loadSprite("background", "testingbackground.gif")
 loadSprite("barrel", "myNewBarrel.png")
 loadSprite('speedPower', 'testingPower.jpg')
 loadSprite("apple", "apple.png");
-gravity(80)
+loadSprite("badApple", "badApple.png");
 
 var score = 0;
 var countDown = 60;
-let timeOfGame = 5;
+let timeOfGame = 120;
 
 // background
 loadSprite("clearsky", "background2.jpg")
 
 
 scene("game", () => {
+
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
@@ -36,6 +70,14 @@ scene("game", () => {
   ])
   onCollide('fallingApple', 'floor', (ap,) => {
     destroy(ap)
+  })
+  onCollide('newBadApple', 'floor', (ap,) => {
+    destroy(ap)
+  })
+  onCollide('newBadApple', 'tag2', (ap,) => {
+    score -= 10;
+    destroy(ap)
+    scoreText.text = `Score: ${score}`;
   })
 
   let scoreText = add([
@@ -66,8 +108,6 @@ scene("game", () => {
     }
   });
 
-
-
   loop(rand(25, 30), () => {
     // add tree
     add([
@@ -80,7 +120,7 @@ scene("game", () => {
     ])
   });
 
-  barrel = add([
+  let barrel = add([
     sprite("barrel"),
     scale(0.2),
     'tag2',
@@ -104,7 +144,7 @@ scene("game", () => {
     })
   })
   let spawnSpeed = 1
-  let appleFallSpeed = 150
+  let appleFallSpeed = 200
   let spawnRate = 1;
 
   // functionality of apple
@@ -114,14 +154,24 @@ scene("game", () => {
         sprite("apple"),
         scale(0.05),
         pos(rand(vec2(width())).x, -100),
-        //move(DOWN, rand(appleFallSpeed-100, appleFallSpeed+100)),
+        move(DOWN, rand(appleFallSpeed-100, appleFallSpeed+100)),
         area(),
-        body(),
         'fallingApple',
       ])
     }
   })
-
+  loop(2, () => {
+    for (let i = 0; i < spawnRate; i++) {
+      add([
+        sprite("badApple"),
+        scale(0.1),
+        pos(rand(vec2(width())).x, -100),
+        move(DOWN, rand(appleFallSpeed - 100, appleFallSpeed + 100)),
+        area(),
+        'newBadApple',
+      ])
+    }
+  })
   barrel.onCollide('fallingApple', (fallingApple) => {
     destroy(fallingApple);
     score += 5;
@@ -151,15 +201,23 @@ scene("game", () => {
     if (timeOfGame === 0) {
       go('gameOver')
     }
+    if (isTwoPayer) { 
+      set(gamedata.reference, {
+        playerOnePoints: score,
+        playerTwoPoints: 0
+      })
+    }
   })
 
 })
+
 scene("gameOver", () => {
   let scoreText = add([
     text(`GameOver`),
     pos(10, height() - 100)
   ])
- })
+})
+ 
 function isGameOver() { 
   if (timeOfGame > 0) {
     go('game')

@@ -21,30 +21,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 let ptag = document.getElementById('test')
 const db = getDatabase()
-function data(points) {
-  const reference = ref(db, 'users/')
-  set(reference, {
-    username: points,
-  })
-}
-data(2)
+const reference = ref(db, 'jmfSLwU5/')
 
-const point = ref(db, 'users/username')
 
-onValue(point, (snaphot) => {
-  const data = snaphot.val();
-  console.log(data)
-  ptag.innerText = data
-})
-function makeid(length) {
-  var result = '';
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() *
-      charactersLength));
-  }
-  return result;
-}
-
-console.log(makeid(10));
+export default db;
