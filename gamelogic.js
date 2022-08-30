@@ -32,9 +32,32 @@ const scoreLabel = add([
     pos(24, 24)
 ])
 
+// dom elements
+const audio = document.querySelector("audio");
+const playAudio = document.body.querySelectorAll("button")[0];
+const pauseAudio = document.body.querySelectorAll("button")[1];
 
-// increment counter when collision happens
-// onUpdate(() => {
-//     score++;
-//     scoreLabel.text = score;
-// });
+// event listeners 
+  playAudio.addEventListener("click", () => {
+  if(!audio.play()){
+  audio.play(); 
+  }
+  });
+  pauseAudio.addEventListener("click", () => {
+  if(!audio.pause()){
+  audio.pause();
+  }
+  });
+
+  // background
+  loadSprite("clearsky", "background2.jpg")
+
+  let background = add([
+    sprite("clearsky"),
+    pos(width() / 2, height() / 2),
+    origin("center"),
+    scale(2),
+    fixed()
+  ]);
+
+

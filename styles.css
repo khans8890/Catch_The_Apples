@@ -1,0 +1,8 @@
+#play-music{
+    position: absolute;
+}
+#pause-music{
+    position: absolute;
+    top: 30px;
+
+}
