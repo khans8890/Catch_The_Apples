@@ -1,22 +1,72 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-app.js";
+import { getDatabase, onValue, ref, set } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-database.js";
+import db from './database.js';
+let isTwoPayer = false;
+let playerIs = 'playerOne'
+// function makeid(length) {
+//   var result = '';
+//   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//   var charactersLength = characters.length;
+//   for (var i = 0; i < length; i++) {
+//     result += characters.charAt(Math.floor(Math.random() *
+//       charactersLength));
+//   }
+//   return result;
+// }
+let gamedata = {
+  reference:''
+}
+let setPlayerTwoButton = document.getElementById('playerteobutton')
+setPlayerTwoButton.addEventListener('click', () => {
+  playerIs = 'playerTwo'
+})
+let getPlayerOnesavedScore;
+let getPlayerTwosavedScore;
+var playerOnesavedScore = 0;
+var playerTwosavedScore = 0;
+
+let button = document.getElementById('removesthis')
+button.addEventListener('click', () => {
+  isTwoPayer = true
+  gamedata.reference = ref(db, 'jmfSLwU5/')
+  getPlayerOnesavedScore = ref(db, 'jmfSLwU5/', 'playerOnePoints');
+  getPlayerTwosavedScore = ref(db, 'jmfSLwU5/', 'playerTwoPoints');
+  set(gamedata.reference, {
+    playerOnePoints: 0,
+    playerTwoPoints: 0
+  })
+  onValue(getPlayerOnesavedScore, (snap) => {
+    playerOnesavedScore = snap.val().playerOnePoints;
+  })
+  onValue(getPlayerTwosavedScore, (snap) => {
+    playerTwosavedScore = snap.val().playerTwoPoints;
+  })
+  console.log(playerTwosavedScore)
+})
+  
+
 // initialize kaboom context
 let kB = kaboom();
+
 // add a piece of text at position (120, 80)
 loadSprite("background", "testingbackground.gif")
 loadSprite("barrel", "myNewBarrel.png")
 loadSprite('speedPower', 'testingPower.jpg')
 loadSprite("apple", "apple.png");
+loadSprite("badApple", "badApple.png");
 gravity(80)
 loadSprite("reset", "restart.png")
 
 var score = 4;
 var countDown = 60;
-var timeOfGame = 0;
+let timeOfGame = 120;
 
 // background
 loadSprite("clearsky", "background2.jpg")
 
 
 scene("game", () => {
+
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
@@ -37,6 +87,14 @@ scene("game", () => {
   ])
   onCollide('fallingApple', 'floor', (ap,) => {
     destroy(ap)
+  })
+  onCollide('newBadApple', 'floor', (ap,) => {
+    destroy(ap)
+  })
+  onCollide('newBadApple', 'tag2', (ap,) => {
+    score -= 10;
+    destroy(ap)
+    scoreText.text = `Score: ${score}`;
   })
 
   let scoreText = add([
@@ -67,8 +125,6 @@ scene("game", () => {
     }
   });
 
-
-
   loop(rand(25, 30), () => {
     // add tree
     add([
@@ -81,7 +137,7 @@ scene("game", () => {
     ])
   });
 
-  barrel = add([
+  let barrel = add([
     sprite("barrel"),
     scale(0.2),
     'tag2',
@@ -105,7 +161,7 @@ scene("game", () => {
     })
   })
   let spawnSpeed = 1
-  let appleFallSpeed = 150
+  let appleFallSpeed = 200
   let spawnRate = 1;
 
   // functionality of apple
@@ -115,14 +171,24 @@ scene("game", () => {
         sprite("apple"),
         scale(0.05),
         pos(rand(vec2(width())).x, -100),
-        //move(DOWN, rand(appleFallSpeed-100, appleFallSpeed+100)),
+        move(DOWN, rand(appleFallSpeed-100, appleFallSpeed+100)),
         area(),
-        body(),
         'fallingApple',
       ])
     }
   })
-
+  loop(2, () => {
+    for (let i = 0; i < spawnRate; i++) {
+      add([
+        sprite("badApple"),
+        scale(0.1),
+        pos(rand(vec2(width())).x, -100),
+        move(DOWN, rand(appleFallSpeed - 100, appleFallSpeed + 100)),
+        area(),
+        'newBadApple',
+      ])
+    }
+  })
   barrel.onCollide('fallingApple', (fallingApple) => {
     destroy(fallingApple);
     score += 5;
@@ -152,9 +218,24 @@ scene("game", () => {
     if (timeOfGame === 0) {
       go('gameOver')
     }
+
+    if (isTwoPayer) { 
+      if (playerIs === 'playerOne') {
+        set(getPlayerOnesavedScore, {
+          playerOnePoints: score,
+          playerTwoPoints: playerTwosavedScore
+        })
+      } else {
+        set(getPlayerTwosavedScore, {
+          playerOnePoints: playerOnesavedScore,
+          playerTwoPoints: score,
+        })
+      }
+    }
   })
 
 })
+
 scene("gameOver", () => {
   let background = add([
     sprite("clearsky"),
@@ -169,7 +250,7 @@ scene("gameOver", () => {
     pos(750, 50),
     color(255,217,75),
   ])
- 
+  
  let scoreText = add([
     text("Score:"),
     pos(860, 200),
