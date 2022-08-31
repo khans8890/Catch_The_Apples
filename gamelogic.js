@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.3/firebase
 import { getDatabase, onValue, ref, set } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-database.js";
 import db from './database.js';
 let isTwoPayer = false;
+let playerIs = 'playerOne'
 // function makeid(length) {
 //   var result = '';
 //   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -15,18 +16,32 @@ let isTwoPayer = false;
 let gamedata = {
   reference:''
 }
+let setPlayerTwoButton = document.getElementById('playerteobutton')
+setPlayerTwoButton.addEventListener('click', () => {
+  playerIs = 'playerTwo'
+})
+let getPlayerOnesavedScore;
+let getPlayerTwosavedScore;
+var playerOnesavedScore = 0;
+var playerTwosavedScore = 0;
+
 let button = document.getElementById('removesthis')
 button.addEventListener('click', () => {
   isTwoPayer = true
-
   gamedata.reference = ref(db, 'jmfSLwU5/')
-  
+  getPlayerOnesavedScore = ref(db, 'jmfSLwU5/', 'playerOnePoints');
+  getPlayerTwosavedScore = ref(db, 'jmfSLwU5/', 'playerTwoPoints');
   set(gamedata.reference, {
     playerOnePoints: 0,
     playerTwoPoints: 0
   })
-
-  console.log(gamedata)
+  onValue(getPlayerOnesavedScore, (snap) => {
+    playerOnesavedScore = snap.val().playerOnePoints;
+  })
+  onValue(getPlayerTwosavedScore, (snap) => {
+    playerTwosavedScore = snap.val().playerTwoPoints;
+  })
+  console.log(playerTwosavedScore)
 })
   
 
@@ -201,11 +216,19 @@ scene("game", () => {
     if (timeOfGame === 0) {
       go('gameOver')
     }
+
     if (isTwoPayer) { 
-      set(gamedata.reference, {
-        playerOnePoints: score,
-        playerTwoPoints: 0
-      })
+      if (playerIs === 'playerOne') {
+        set(getPlayerOnesavedScore, {
+          playerOnePoints: score,
+          playerTwoPoints: playerTwosavedScore
+        })
+      } else {
+        set(getPlayerTwosavedScore, {
+          playerOnePoints: playerOnesavedScore,
+          playerTwoPoints: score,
+        })
+      }
     }
   })
 
