@@ -1,8 +1,46 @@
 #play-music{
     position: absolute;
+    top: 0px;
+    color: black;
+    background-color: white;
+    border-color: #72bce1;
 }
+
 #pause-music{
     position: absolute;
-    top: 30px;
+    top: 0px;
+    left: 90px;
+    background-color: white;
+    border-color: #72bce1;
+}
 
+
+#multiplayer-button{
+    position: absolute;
+    top: 400px;
+    left: 550px;
+    height: 50px;
+    width: 140px;
+    font-size: 24px;
+    border-color: #72bce1;
+}
+
+#join-lobby-button{
+    position: absolute;
+    top: 0px;
+    right: 700px;
+    color: black;
+    width: 100px; 
+    background-color: white;
+    border-color: #72bce1;
+}
+
+#solo{
+    position: absolute;
+    top: 400px;
+    right: 550px;
+    font-size: 27px;
+    height: 50px;
+    width: 100px;
+    border-color: #72bce1;
 }
