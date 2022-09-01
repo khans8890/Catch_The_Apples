@@ -18,7 +18,7 @@ gameKeyTojoin = 'jmfSLwU5/'
 let gamedata = {
   reference:''
 }
-let setPlayerTwoButton = document.getElementById('playerteobutton')
+let setPlayerTwoButton = document.getElementById('join-lobby-button')
 setPlayerTwoButton.addEventListener('click', () => {
   playerIs = 'playerTwo';
   console.log(playerIs);
@@ -27,10 +27,10 @@ let getPlayerOnesavedScore;
 let getPlayerTwosavedScore;
 var playerOnesavedScore = 0;
 var playerTwosavedScore = 0;
-var getPlayerTwoReady;
+var getPlayerTwoReady; 
 var getDidGameStart;
 let timeOfGame = 120;
-let button = document.getElementById('removesthis')
+let button = document.getElementById('multiplayer-button')
 button.addEventListener('click', () => {
   isTwoPayer = true
   gamedata.reference = ref(db, gameKeyTojoin)
@@ -96,7 +96,7 @@ var countDown = 60;
 
 // loadSprites
 loadSprite("clearsky", "background2.jpg")
-loadSprite("bluesky-startpage","bluesky.jpg")
+loadSprite("bluesky-startpage","My project (1).jpg")
 loadSprite("cloud", "cloud-new.png")
 loadSprite("start-button", "start-button.png")
 loadSprite("rules-icon", "questionmark.jpg");
@@ -110,35 +110,24 @@ scene("intro", () => {
     fixed()
 
   ])
-  add([
-    sprite("cloud"),
-    scale(0.5), 
-    pos(800, 0)
-  ])
-  add([
-    sprite("cloud"),
-    scale(0.5), 
-    pos(800, 800)
-  ])
-  add([
-    sprite("cloud"),
-    scale(0.5), 
-    pos(40,400)
-  ])
-  add([
-    sprite("cloud"),
-    scale(0.5), 
-    pos(1550, 400)
+  let introTxt = add([
+    text("Refer to the rules, then click a mode and start. "),
+    pos(300, 250),
+    scale(.5),
+    width(5),
+       
   ])
   let start = add([
     sprite("start-button"),
-    pos(100, 100),
+    pos(500, 550),
+    scale(.4),
     area(),
     "startgame"
   ])
   onClick('startgame', ()=>{
     go('game')
   })
+  
   function rulesPopUp(txt, p, f) {
     const rules = add([
       text("Rules"),
@@ -167,19 +156,17 @@ scene("intro", () => {
     }
 
    rulesPopUp("Rules", vec2(200, 200), () => (
-      // debug.log("The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. Click anywhere on this pop up to close me."),
       add([
-        text("The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. Click anywhere on this pop up to close me.", {
-          width: 600,
+        text("  The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. Click anywhere on this text pop-up to close me.", {
+          width: 450,
           size: 21,
           transform: (idx, ch) => ({
             color:  rgb(255,217,75)
           })
         }),
+        pos(1070, 100),
         "rules-section", 
-        pos(0, 100), 
         area(),
-        
       ])
 
     ))
@@ -187,50 +174,13 @@ scene("intro", () => {
       onClick("rules-section", () => {
         destroyAll("rules-section")
       })
-    onUpdate(() => cursor("default"));    
+    onUpdate(() => cursor("default"));  
+  
 });
 
 go('intro');
 
-// The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 5 points, catching the red apples will cause your score to go up 10 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. To close the rules section simply click on the question icon.' 
 
-// let rules = add([
-//     sprite("rules-icon"),
-//     pos(0,0)
-// ])
-
-function rulesPopUp(txt, p, f) {
-const rules = add([
-  text("Rules"),
-  pos(100, 500),
-  area({cursor: "pointer", }),
-  scale(1),
-  origin("center"),
-])
-
-rules.onClick(f);
-
-rules.onUpdate(() => {
-  if(rules.isHovering()) {
-     const t = time() * 10
-     rules.color = rgb(
-      wave(0, 255, t),
-      wave(0, 225, t + 2),
-      wave(0, 255, t + 4),
-    )
-    rules.scale = vec2(1.2)
-  } else {
-    rules.scale = vec2(1)
-    rules.color = rgb()
-  }
-})
-}
-
-rulesPopUp("Rules", vec2(200, 100), () => debug.log("hi!"));
-rulesPopUp("Rules", vec2(200, 200), () => debug.log("bye"));
-onUpdate(() => cursor("default"));
-
-///waitingLobby -------------------------------------------------------------------------------------------------------------------------------------------------
 scene('waitingLobby', () => {
   let background = add([
     sprite("clearsky"),
@@ -254,7 +204,7 @@ scene('waitingLobby', () => {
     fixed()
   ]);
   add([
-    text(`are you ready`, {
+    text(`Are you ready?`, {
       size: 30
     }),
     pos(100, 160)
