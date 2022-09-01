@@ -68,22 +68,173 @@ loadSprite("badApple", "badApple.png");
 gravity(80)
 loadSprite("reset", "restart.png")
 
-var score = 0;
-var countDown = 60;
 
 
 // background
-loadSprite("clearsky", "background2.jpg");
 loadSprite('readyButtonIMG', 'ready.jpg');
+
+
+// dom elements
+var audio = document.querySelector("audio");
+var playAudio = document.body.querySelectorAll("button")[0];
+var pauseAudio = document.body.querySelectorAll("button")[1];
+// event listeners 
+playAudio.addEventListener("click", () => {
+  if (!audio.play()) {
+    audio.play();
+  }
+});
+pauseAudio.addEventListener("click", () => {
+  if (!audio.pause()) {
+    audio.pause();
+  }
+});
+
+var score = 0;
+var countDown = 60;
+var timeOfGame = 120;
+
+
+// loadSprites
+loadSprite("clearsky", "background2.jpg")
+loadSprite("bluesky-startpage","bluesky.jpg")
+loadSprite("cloud", "cloud-new.png")
+loadSprite("start-button", "start-button.png")
+loadSprite("rules-icon", "questionmark.jpg");
+
+scene("intro", () => {
+  let background = add([
+    sprite("bluesky-startpage"),
+    pos(width() / 2, height() / 2),
+    origin("center"),
+    scale(2),
+    fixed()
+
+  ])
+  add([
+    sprite("cloud"),
+    scale(0.5), 
+    pos(800, 0)
+  ])
+  add([
+    sprite("cloud"),
+    scale(0.5), 
+    pos(800, 800)
+  ])
+  add([
+    sprite("cloud"),
+    scale(0.5), 
+    pos(40,400)
+  ])
+  add([
+    sprite("cloud"),
+    scale(0.5), 
+    pos(1550, 400)
+  ])
+  let start = add([
+    sprite("start-button"),
+    pos(100, 100),
+    area(),
+    "startgame"
+  ])
+  onClick('startgame', ()=>{
+    go('game')
+  })
+  function rulesPopUp(txt, p, f) {
+    const rules = add([
+      text("Rules"),
+      pos(1350,40),
+      area({cursor: "pointer", }),
+      scale(1),
+      origin("center"),
+    ])
+    
+    rules.onClick(f);
+    
+    rules.onUpdate(() => {
+      if(rules.isHovering()) {
+         const t = time() * 10
+         rules.color = rgb(
+          wave(0, 255, t),
+          wave(0, 225, t + 2),
+          wave(0, 255, t + 4),
+        )
+        rules.scale = vec2(1.2)
+      } else {
+        rules.scale = vec2(1)
+        rules.color = rgb()
+      }
+    })
+    }
+
+   rulesPopUp("Rules", vec2(200, 200), () => (
+      // debug.log("The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. Click anywhere on this pop up to close me."),
+      add([
+        text("The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. Click anywhere on this pop up to close me.", {
+          width: 600,
+          size: 21,
+          transform: (idx, ch) => ({
+            color:  rgb(255,217,75)
+          })
+        }),
+        "rules-section", 
+        pos(0, 100), 
+        area(),
+        
+      ])
+
+    ))
+   
+      onClick("rules-section", () => {
+        destroyAll("rules-section")
+      })
+    onUpdate(() => cursor("default"));    
+});
+
+go('intro');
+
+// The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 5 points, catching the red apples will cause your score to go up 10 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. To close the rules section simply click on the question icon.' 
+
+// let rules = add([
+//     sprite("rules-icon"),
+//     pos(0,0)
+// ])
+
+function rulesPopUp(txt, p, f) {
+const rules = add([
+  text("Rules"),
+  pos(100, 500),
+  area({cursor: "pointer", }),
+  scale(1),
+  origin("center"),
+])
+
+rules.onClick(f);
+
+rules.onUpdate(() => {
+  if(rules.isHovering()) {
+     const t = time() * 10
+     rules.color = rgb(
+      wave(0, 255, t),
+      wave(0, 225, t + 2),
+      wave(0, 255, t + 4),
+    )
+    rules.scale = vec2(1.2)
+  } else {
+    rules.scale = vec2(1)
+    rules.color = rgb()
+  }
+})
+}
+
+rulesPopUp("Rules", vec2(200, 100), () => debug.log("hi!"));
+rulesPopUp("Rules", vec2(200, 200), () => debug.log("bye"));
+onUpdate(() => cursor("default"));
 
 ///waitingLobby -------------------------------------------------------------------------------------------------------------------------------------------------
 scene('waitingLobby', () => {
   let background = add([
     sprite("clearsky"),
-    pos(width() / 2, height() / 2),
-    origin("center"),
-    scale(2),
-    fixed()
   ]);
   let readyButton = add([
     sprite("readyButtonIMG"),
@@ -115,7 +266,6 @@ scene('waitingLobby', () => {
     }),
     pos(100, 200)
   ])
-
     let playertwoReadyText = add([
     text(`Player Two is not ready`, {
       size: 30
@@ -188,7 +338,7 @@ scene('waitingLobby', () => {
     }
   })
 })
-go('waitingLobby')
+
 ///game -------------------------------------------------------------------------------------------------------------------------------------------------
 scene("game", () => {
   let background = add([
@@ -248,22 +398,7 @@ scene("game", () => {
 
 
 
-  // dom elements
-  const audio = document.querySelector("audio");
-  const playAudio = document.body.querySelectorAll("button")[0];
-  const pauseAudio = document.body.querySelectorAll("button")[1];
-
-  // event listeners 
-  playAudio.addEventListener("click", () => {
-    if (!audio.play()) {
-      audio.play();
-    }
-  });
-  pauseAudio.addEventListener("click", () => {
-    if (!audio.pause()) {
-      audio.pause();
-    }
-  });
+  
 
   loop(10, () => {
     // add tree
@@ -302,7 +437,7 @@ scene("game", () => {
       barrelSpeed = 400
     })
   })
-  let spawnSpeed = 1
+  let spawnSpeed = 1;
   let appleFallSpeed = 200
   let spawnRate = 1;
 
