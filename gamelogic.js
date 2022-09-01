@@ -21,6 +21,7 @@ let gamedata = {
 }
 let setPlayerTwoButton = document.getElementById('join-lobby-button')
 setPlayerTwoButton.addEventListener('click', () => {
+  isTwoPayer = true;
   playerIs = 'playerTwo';
   go('waitingLobby')
   console.log(playerIs);
@@ -32,7 +33,7 @@ var playerTwosavedScore = 0;
 var getPlayerTwoReady; 
 var getDidGameStart;
 let timeOfGame = 120;
-
+let sTimeOfGame = 2;
 let button = document.getElementById('multiplayer-button')
 button.addEventListener('click', () => {
   isTwoPayer = true
@@ -56,6 +57,7 @@ button.addEventListener('click', () => {
     getDidGameStart = snap.val().didGameStart;
   })
   console.log('twoPlayer game')
+  go('waitingLobby')
 })
   
 
@@ -181,7 +183,7 @@ scene("intro", () => {
   
 });
 
-// go('intro');
+go('intro');
 
 // The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 5 points, catching the red apples will cause your score to go up 10 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. To close the rules section simply click on the question icon.' 
 
@@ -303,6 +305,8 @@ scene('waitingLobby', () => {
       })
       readyButtonTwo.addEventListener('click', () => {
         if (playerIs === 'playerTwo') {
+          getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
+          getPlayerTwosavedScore =  ref(db, gameKeyTojoin, 'playerOnePoints');;
           set(getPlayerOnesavedScore, {
             playerOnePoints: playerOnesavedScore,
             playerTwoPoints: playerTwosavedScore,
@@ -345,7 +349,7 @@ scene('waitingLobby', () => {
           playerTwoPoints: playerTwosavedScore,
           isPlayerTwoReady: true,
           didGameStart: true,
-          gameTimer: 3
+          gameTimer: 120
         })
         go('game')
       } else {
@@ -354,7 +358,7 @@ scene('waitingLobby', () => {
     })
   }
 })
-go('waitingLobby');
+// go('waitingLobby');
 ///game -------------------------------------------------------------------------------------------------------------------------------------------------
 scene("game", () => {
   if (readyButton) {
@@ -543,8 +547,15 @@ scene("game", () => {
             gameTimer: timeOfGame
           })
         }
+      } else {
+        sTimeOfGame--
+        if (sTimeOfGame <= 0) {
+          go('gameOver')
+        }
+        timer.text = `Timer:${new Date(sTimeOfGame * 1000).toISOString().substring(14, 19)}`;
       }
     })
+    
   })
 })
 
