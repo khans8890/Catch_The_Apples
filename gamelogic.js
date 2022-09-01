@@ -15,12 +15,14 @@ gameKeyTojoin = 'jmfSLwU5/'
 //   }
 //   return result;
 // }
+
 let gamedata = {
   reference:''
 }
 let setPlayerTwoButton = document.getElementById('playerteobutton')
 setPlayerTwoButton.addEventListener('click', () => {
   playerIs = 'playerTwo';
+  go('waitingLobby')
   console.log(playerIs);
 })
 let getPlayerOnesavedScore;
@@ -31,6 +33,7 @@ var getPlayerTwoReady;
 var getDidGameStart;
 let timeOfGame = 120;
 let button = document.getElementById('removesthis')
+
 button.addEventListener('click', () => {
   isTwoPayer = true
   gamedata.reference = ref(db, gameKeyTojoin)
@@ -41,7 +44,7 @@ button.addEventListener('click', () => {
     playerTwoPoints: 0,
     isPlayerTwoReady: false,
     didGameStart: false,
-    gameTimer: 5
+    gameTimer: 120
   })
   onValue(getPlayerOnesavedScore, (snap) => {
     playerOnesavedScore = snap.val().playerOnePoints;
@@ -190,7 +193,7 @@ scene("intro", () => {
     onUpdate(() => cursor("default"));    
 });
 
-go('intro');
+// go('intro');
 
 // The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 5 points, catching the red apples will cause your score to go up 10 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. To close the rules section simply click on the question icon.' 
 
@@ -229,68 +232,66 @@ rules.onUpdate(() => {
 rulesPopUp("Rules", vec2(200, 100), () => debug.log("hi!"));
 rulesPopUp("Rules", vec2(200, 200), () => debug.log("bye"));
 onUpdate(() => cursor("default"));
-
+var readyButton;
 ///waitingLobby -------------------------------------------------------------------------------------------------------------------------------------------------
 scene('waitingLobby', () => {
   let background = add([
-    sprite("clearsky"),
-  ]);
-  let readyButton = add([
-    sprite("readyButtonIMG"),
-    pos(width() / 2, (height() / 2) - 100),
+    sprite("bluesky-startpage"),
+    pos(width() / 2, height() / 2),
     origin("center"),
-    'ImReady',
-    scale(.5),
-    area(),
+    scale(2),
     fixed()
-  ]);
+
+  ])
   add([
-    sprite("readyButtonIMG"),
-    pos(width() / 2+200, (height() / 2) - 100),
-    origin("center"),
-    'startTheGame',
-    scale(.2),
-    area(),
-    fixed()
-  ]);
-  add([
-    text(`are you ready`, {
-      size: 30
+    text(`Are you ready?`, {
+      size: 50
     }),
     pos(100, 160)
   ])
   let playerOnetext = add([
     text(`Player One is ready`, {
-      size: 30
+      size: 50
     }),
-    pos(100, 200)
+    pos(100, 230)
   ])
     let playertwoReadyText = add([
     text(`Player Two is not ready`, {
-      size: 30
+      size: 50
     }),
-    pos(100, 250)
-  ])
+    pos(100, 300)
+    ])
+  
   if (playerIs === "playerTwo") {
     let enterKeyToJoin = document.createElement('input')
     document.body.append(enterKeyToJoin)
     enterKeyToJoin.setAttribute("type", "text");
     enterKeyToJoin.setAttribute("id", "GetGivenKey");
+    enterKeyToJoin.setAttribute('placeholder',"Code Here")
     enterKeyToJoin.style.position = "absolute"
-    enterKeyToJoin.style.top = `${(height()/2) - 40}px`
+    enterKeyToJoin.style.top = `${(height() / 2) - 200}px`
     enterKeyToJoin.style.left = `${(width() / 2) - 40}px`
 
     let keySubmmitButton = document.createElement('button')
     document.body.append(keySubmmitButton)
     keySubmmitButton.innerText = 'Submit'
     keySubmmitButton.style.position = "absolute"
-    keySubmmitButton.style.top = `${(height() / 2-10)}px`
-    keySubmmitButton.style.left = `${(width() / 2) +20}px`
-    keySubmmitButton.addEventListener('click', () => { 
+    keySubmmitButton.style.top = `${(height() / 2 - 160)}px`
+    keySubmmitButton.style.left = `${(width() / 2) + 20}px`
+
+    keySubmmitButton.addEventListener('click', () => {
       gameKeyTojoin = enterKeyToJoin.value;
       console.log(gameKeyTojoin)
       gamedata.reference = ref(db, gameKeyTojoin)
-
+      let readyButtonTwo = document.createElement('button')
+      document.body.append(readyButtonTwo)
+      readyButtonTwo.innerText = 'READY'
+      readyButtonTwo.style.position = "absolute"
+      readyButtonTwo.style.fontSize = '30px'
+      readyButtonTwo.style.borderRadius = '50px'
+      readyButtonTwo.style.backgroundColor = "red"
+      readyButtonTwo.style.top = `${(height() / 2 + 2)}px`
+      readyButtonTwo.style.left = `${(width() / 2) + 20}px`
       onValue(gamedata.reference, (snap) => {
         if (snap.val()) {
           playerOnesavedScore = snap.val().playerOnePoints;
@@ -298,48 +299,78 @@ scene('waitingLobby', () => {
           playerTwosavedScore = snap.val().playerTwoPoints;
           getPlayerTwoReady = snap.val().isPlayerTwoReady;
           getDidGameStart = snap.val().didGameStart;
+          playerOnetext.onUpdate(() => {
+            if (getDidGameStart) {
+              go('game')
+              keySubmmitButton.style.display = 'none';
+              enterKeyToJoin.style.display = 'none';
+              readyButtonTwo.style.display = 'none';
+            }
+          })
         } else {
           console.log('errrror')
         }
+        
       })
-      console.table(playerOnesavedScore, timeOfGame, playerTwosavedScore, getPlayerTwoReady, getDidGameStart)
+      readyButtonTwo.addEventListener('click', () => {
+        if (playerIs === 'playerTwo') {
+          set(getPlayerOnesavedScore, {
+            playerOnePoints: playerOnesavedScore,
+            playerTwoPoints: playerTwosavedScore,
+            isPlayerTwoReady: true,
+            gameTimer: 120,
+            didGameStart: getDidGameStart
+          })
+        }
+        playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`
+        console.log('cats')
+      })
+      //console.table(playerOnesavedScore, timeOfGame, playerTwosavedScore, getPlayerTwoReady, getDidGameStart)
+    })
+
+  } else {
+    add([
+      text(`Lobby Code: ${gameKeyTojoin}`, {
+        size: 50
+      }),
+      pos(100, 370)
+    ])
+    playerOnetext.onUpdate(() => {
+      if (getPlayerTwoReady) {
+        add([
+          sprite("start-button"),
+          pos(width() / 2 + 200, (height() / 2) - 100),
+          origin("center"),
+          'startTheGame',
+          scale(.2),
+          area(),
+          fixed()
+        ]);
+        playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`;
+      }
+    })
+    onClick('startTheGame', () => {
+      if (getPlayerTwoReady) {
+        set(getPlayerOnesavedScore, {
+          playerOnePoints: playerOnesavedScore,
+          playerTwoPoints: playerTwosavedScore,
+          isPlayerTwoReady: true,
+          didGameStart: true,
+          gameTimer: 3
+        })
+        go('game')
+      } else {
+        console.log('playerTwo is not ready')
+      }
     })
   }
-  onClick('ImReady', () => {
-    if (playerIs === 'playerTwo') {
-      set(getPlayerOnesavedScore, {
-        playerOnePoints: playerOnesavedScore,
-        playerTwoPoints: playerTwosavedScore,
-        isPlayerTwoReady: true,
-        gameTimer: timeOfGame
-      })
-    } 
-    playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`
-    console.log('cats')
-  })
-  onClick('startTheGame', () => {
-    if (getPlayerTwoReady) {
-      set(getPlayerOnesavedScore, {
-        playerOnePoints: playerOnesavedScore,
-        playerTwoPoints: playerTwosavedScore,
-        isPlayerTwoReady: true,
-        didGameStart: true,
-        gameTimer: timeOfGame
-      })
-      console.log('start game')
-    } else {
-      console.log('playerTwo is not ready')
-    }
-  })
-  readyButton.onUpdate(() => { 
-    if (getDidGameStart) { 
-      go('game')
-    }
-  })
 })
-
+go('waitingLobby');
 ///game -------------------------------------------------------------------------------------------------------------------------------------------------
 scene("game", () => {
+  if (readyButton) {
+    destroy(readyButton)
+  }
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
@@ -347,7 +378,7 @@ scene("game", () => {
     scale(2),
     fixed()
   ]);
-
+  
   add([
     pos(0, height() - 100),
     rect(width(), 100),
@@ -382,11 +413,11 @@ scene("game", () => {
     ])
   } else {
     var playerOneScoreText = add([
-      text(`P1 Score: ${score}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
+      text(`P1 Score: ${0}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
       pos(10, height() - 100)
     ])
     var playerTwoScoreText = add([
-      text(`P2 Score: ${score}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
+      text(`P2 Score: ${0}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
       pos(width()-600, height() - 100)
     ])
     var timer = add([
@@ -425,8 +456,10 @@ scene("game", () => {
     if (mousePos().x > 86 && mousePos().x < width() - 86 || barrel.pos.x > 0 && barrel.pos.x < width() - 170) {
       barrel.moveTo(mousePos().x - 86, 500, barrelSpeed)
     }
-    playerOneScoreText.text = `P1 Score: ${playerOnesavedScore}`;
-    playerTwoScoreText.text = `P2 Score: ${playerTwosavedScore}`;
+    if (isTwoPayer) {
+      playerOneScoreText.text = `P1 Score: ${playerOnesavedScore}`;
+      playerTwoScoreText.text = `P2 Score: ${playerTwosavedScore}`;
+    }
   })
 
   barrel.onCollide('tag1', (power) => {
@@ -471,15 +504,19 @@ scene("game", () => {
     if (!isTwoPayer) {
       scoreText.text = `Score: ${score}`;
     } else {
-      playerOneScoreText.text = `P1 Score: ${playerOnesavedScore}`;
-      playerTwoScoreText.text = `P2 Score: ${playerTwosavedScore}`;
+      if (playerIs === 'playerOne') {
+        playerOneScoreText.text = `P1 Score: ${score}`;
+        playerOnesavedScore = score
+      } else {
+        playerTwoScoreText.text = `P2 Score: ${score}`;
+        playerTwosavedScore = score
+      }
     }
   })
 
   // timer
   loop(1, () => {
     countDown--
-    
     if (countDown % 10 === 0) {
       if (spawnSpeed > 0.3) {
         spawnSpeed -= 0.2
@@ -493,45 +530,33 @@ scene("game", () => {
     if (countDown % 20 === 0 && spawnRate < 10) {
       spawnRate++
     }
-    if (playerIs === 'playerOne') {
-      timeOfGame--
-      timer.text = `Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`;
-      set(getPlayerOnesavedScore, {
-        playerOnePoints: playerOnesavedScore,
-        playerTwoPoints: playerTwosavedScore,
-        gameTimer: timeOfGame
-      })
-    } else {
-      timeOfGame--
-      timer.text = `Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`;
-      set(getPlayerOnesavedScore, {
-        playerOnePoints: playerOnesavedScore,
-        playerTwoPoints: playerTwosavedScore,
-        gameTimer: timeOfGame
-      })
-    }
-
     if (timeOfGame <= 0) {
       go('gameOver')
     }
-
-    if (isTwoPayer) {
-      if (playerIs === 'playerOne') {
-        set(getPlayerOnesavedScore, {
-          playerOnePoints: score,
-          playerTwoPoints: playerTwosavedScore,
-          gameTimer: timeOfGame
-        })
-      } else {
-        set(getPlayerTwosavedScore, {
-          playerOnePoints: playerOnesavedScore,
-          playerTwoPoints: score,
-          gameTimer: timeOfGame
-        })
-      }
-    }
   })
-
+  wait(1, () => {
+    loop(1, () => {
+      if (isTwoPayer) {
+        if (playerIs === 'playerOne') {
+          timeOfGame--
+          console.log(timeOfGame)
+          timer.text = `Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`;
+          set(getPlayerOnesavedScore, {
+            playerOnePoints: score,
+            playerTwoPoints: playerTwosavedScore,
+            gameTimer: timeOfGame
+          })
+        } else {
+          timer.text = `Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`;
+          set(getPlayerTwosavedScore, {
+            playerOnePoints: playerOnesavedScore,
+            playerTwoPoints: score,
+            gameTimer: timeOfGame
+          })
+        }
+      }
+    })
+  })
 })
 
 scene("gameOver", () => {
@@ -545,70 +570,70 @@ scene("gameOver", () => {
   let gameOverText = add([
     text("Game Over!"),
     scale(1.25),
-    pos(750, 50),
+    pos(500, 50),
     color(255,217,75),
   ])
   if (!isTwoPayer) {
     let scoreText = add([
       text("Score:"),
-      pos(860, 200),
+      pos(660, 200),
     ])
  
     let scoreVal = add([
       text(`${score}`),
-      pos(890, 350),
+      pos(690, 350),
       scale(1.26)
     ])
   } else {
     if (playerOnesavedScore === playerTwosavedScore) { 
       add([
         text(`It was a draw! wow`),
-        pos(600, 160),
+        pos(400, 160),
       ])
       add([
         text(`You both get ${playerOnesavedScore} points`, { size: 40 }),
-        pos(780, 240),
+        pos(580, 240),
       ])
     } else if (playerOnesavedScore > playerTwosavedScore) {
       add([
         text(`Player One Won`),
-        pos(720, 160),
+        pos(470, 160),
       ])
       add([
         text(`Player one score ${playerOnesavedScore}`,{size:40}),
-        pos(860, 240),
+        pos(560, 240),
       ])
       add([
         text(`Player two score ${playerTwosavedScore}`, { size: 30 }),
-        pos(860, 300),
+        pos(610, 300),
       ])
     } else {
       add([
         text(`Player Two Won`),
-        pos(720, 160),
+        pos(470, 160),
       ])
       add([
         text(`Player two score ${playerTwosavedScore}`, { size: 40 }),
-        pos(830, 300),
+        pos(560, 240),
       ])
       add([
         text(`Player one score ${playerOnesavedScore}`, { size: 30 }),
-        pos(840, 360),
+        pos(610, 300),
       ])
     }
   }
 
-let reset = add([
-  sprite("reset"),
-  scale(.6),
-  area(),
-  pos(880, 500),
-  "reset-button"
+  let reset = add([
+    sprite("reset"),
+    scale(.6),
+    area(),
+    pos(680, 500),
+    "reset-button"
 
-])
-onClick("reset-button",()=>{
-  go('game')
-  timeOfGame = 60;
-})
+  ])
+  onClick("reset-button",()=>{
+    go('game')
+    timeOfGame = 60;
+  })
 });
 
