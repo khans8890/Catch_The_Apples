@@ -29,7 +29,7 @@ var playerOnesavedScore = 0;
 var playerTwosavedScore = 0;
 var getPlayerTwoReady;
 var getDidGameStart;
-let timeOfGame;
+let timeOfGame = 120;
 let button = document.getElementById('removesthis')
 button.addEventListener('click', () => {
   isTwoPayer = true
@@ -92,7 +92,6 @@ pauseAudio.addEventListener("click", () => {
 
 var score = 0;
 var countDown = 60;
-var timeOfGame = 120;
 
 
 // loadSprites
