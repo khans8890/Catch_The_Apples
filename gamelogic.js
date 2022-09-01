@@ -41,7 +41,7 @@ button.addEventListener('click', () => {
     playerTwoPoints: 0,
     isPlayerTwoReady: false,
     didGameStart: false,
-    gameTimer: 120
+    gameTimer: 5
   })
   onValue(getPlayerOnesavedScore, (snap) => {
     playerOnesavedScore = snap.val().playerOnePoints;
@@ -115,15 +115,14 @@ scene('waitingLobby', () => {
     }),
     pos(100, 200)
   ])
-  playerOnetext.width = 100;
 
-  add([
+    let playertwoReadyText = add([
     text(`Player Two is not ready`, {
       size: 30
     }),
     pos(100, 250)
   ])
-  if (playerIs === "playerOne") {
+  if (playerIs === "playerTwo") {
     let enterKeyToJoin = document.createElement('input')
     document.body.append(enterKeyToJoin)
     enterKeyToJoin.setAttribute("type", "text");
@@ -141,6 +140,20 @@ scene('waitingLobby', () => {
     keySubmmitButton.addEventListener('click', () => { 
       gameKeyTojoin = enterKeyToJoin.value;
       console.log(gameKeyTojoin)
+      gamedata.reference = ref(db, gameKeyTojoin)
+
+      onValue(gamedata.reference, (snap) => {
+        if (snap.val()) {
+          playerOnesavedScore = snap.val().playerOnePoints;
+          timeOfGame = snap.val().gameTimer;
+          playerTwosavedScore = snap.val().playerTwoPoints;
+          getPlayerTwoReady = snap.val().isPlayerTwoReady;
+          getDidGameStart = snap.val().didGameStart;
+        } else {
+          console.log('errrror')
+        }
+      })
+      console.table(playerOnesavedScore, timeOfGame, playerTwosavedScore, getPlayerTwoReady, getDidGameStart)
     })
   }
   onClick('ImReady', () => {
@@ -152,6 +165,7 @@ scene('waitingLobby', () => {
         gameTimer: timeOfGame
       })
     } 
+    playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`
     console.log('cats')
   })
   onClick('startTheGame', () => {
@@ -400,18 +414,55 @@ scene("gameOver", () => {
     pos(750, 50),
     color(255,217,75),
   ])
-  
- let scoreText = add([
-    text("Score:"),
-    pos(860, 200),
- ])
+  if (!isTwoPayer) {
+    let scoreText = add([
+      text("Score:"),
+      pos(860, 200),
+    ])
  
- let scoreVal = add([
-  text(`${score}`),
-  pos(890, 350),
-  scale(1.26)
- ])
-
+    let scoreVal = add([
+      text(`${score}`),
+      pos(890, 350),
+      scale(1.26)
+    ])
+  } else {
+    if (playerOnesavedScore === playerTwosavedScore) { 
+      add([
+        text(`It was a draw! wow`),
+        pos(600, 160),
+      ])
+      add([
+        text(`You both get ${playerOnesavedScore} points`, { size: 40 }),
+        pos(780, 240),
+      ])
+    } else if (playerOnesavedScore > playerTwosavedScore) {
+      add([
+        text(`Player One Won`),
+        pos(720, 160),
+      ])
+      add([
+        text(`Player one score ${playerOnesavedScore}`,{size:40}),
+        pos(860, 240),
+      ])
+      add([
+        text(`Player two score ${playerTwosavedScore}`, { size: 30 }),
+        pos(860, 300),
+      ])
+    } else {
+      add([
+        text(`Player Two Won`),
+        pos(720, 160),
+      ])
+      add([
+        text(`Player two score ${playerTwosavedScore}`, { size: 40 }),
+        pos(830, 300),
+      ])
+      add([
+        text(`Player one score ${playerOnesavedScore}`, { size: 30 }),
+        pos(840, 360),
+      ])
+    }
+  }
 
 let reset = add([
   sprite("reset"),
