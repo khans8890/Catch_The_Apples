@@ -106,6 +106,9 @@ loadSprite("cloud", "cloud-new.png")
 loadSprite("start-button", "start-button.png")
 loadSprite("rules-icon", "questionmark.jpg");
 
+var soloButton = document.querySelectorAll("button")[3];
+var multButton = document.querySelectorAll("button")[2];
+var lobbyButton = document.querySelectorAll("button")[4];
 scene("intro", () => {
   let background = add([
     sprite("bluesky-startpage"),
@@ -116,11 +119,10 @@ scene("intro", () => {
 
   ])
   let introTxt = add([
-    text("Refer to the rules, then click a mode and start. "),
-    pos(300, 250),
+    text("Click a mode and then start."),
+    pos(500, 250),
     scale(.5),
     width(5),
-       
   ])
   let start = add([
     sprite("start-button"),
@@ -129,8 +131,30 @@ scene("intro", () => {
     area(),
     "startgame"
   ])
+  soloButton.addEventListener("click", () => {
+    multButton.style.display="none";
+    lobbyButton.style.display="none";
   onClick('startgame', ()=>{
     go('game')
+    soloButton.style.display="none";
+  })
+  })
+
+  multButton.addEventListener("click", () => {
+    soloButton.style.display="none";
+    multButton.style.display="none";
+    lobbyButton.style.display="none";
+  onClick('startgame', ()=>{
+    go('lobby')
+    
+  })
+  })
+
+
+  lobbyButton.addEventListener("click", () => {
+    soloButton.style.display="none";
+    multButton.style.display="none";
+    lobbyButton.style.display="none";
   })
   
   function rulesPopUp(txt, p, f) {
