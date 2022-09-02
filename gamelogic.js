@@ -118,7 +118,7 @@ scene("intro", () => {
 
   ])
   let introTxt = add([
-    text("Click a mode and then start."),
+    text("Click a mode and then start"),
     pos(500, 250),
     scale(.5),
     width(5),
@@ -185,14 +185,14 @@ scene("intro", () => {
 
    rulesPopUp("Rules", vec2(200, 200), () => (
       add([
-        text("  The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. Click anywhere on this text pop-up to close me.", {
-          width: 450,
+        text("  The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 10 points, catching the red apples will cause your score to go up 5 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. For solo play click solo then the start button. For multiplayer click multiplayer and then join lobby. Player one has a code that they have to send to player 2 to join the game and then when player 2 clicks ready the game can then begin. Click anywhere on this text pop-up to close me.", {
+          width: 400,
           size: 21,
           transform: (idx, ch) => ({
             color:  rgb(255,217,75)
           })
         }),
-        pos(1070, 100),
+        pos(1130, 100),
         "rules-section", 
         area(),
       ])
@@ -208,12 +208,7 @@ scene("intro", () => {
 
 go('intro');
 
-// The rules of the game are fairly simple, apples will fall from the sky starting at a time of your choosing. Be careful to avoid the rotten apples because it will cause you to lose 5 points, catching the red apples will cause your score to go up 10 points. The mushroom is a powerup that lets you move your barrel faster. As the time goes on the apples will fall faster. To close the rules section simply click on the question icon.' 
 
-// let rules = add([
-//     sprite("rules-icon"),
-//     pos(0,0)
-// ])
 
 function rulesPopUp(txt, p, f) {
 const rules = add([
