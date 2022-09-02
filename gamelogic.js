@@ -415,13 +415,6 @@ scene("game", () => {
   if (readyButton) {
     destroy(readyButton)
   }
-  playerOnesavedScore = 0;
-  playerTwosavedScore = 0;
-  set(getPlayerOnesavedScore, {
-    playerOnePoints: 0,
-    playerTwoPoints: 0,
-    gameTimer: timeOfGame
-  })
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
