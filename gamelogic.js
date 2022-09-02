@@ -32,7 +32,7 @@ var playerOnesavedScore = 0;
 var playerTwosavedScore = 0;
 var getPlayerTwoReady; 
 var getDidGameStart;
-let timeOfGame = 10;
+let timeOfGame = 120;
 let sTimeOfGame = 120;
 let button = document.getElementById('multiplayer-button')
 button.addEventListener('click', () => {
