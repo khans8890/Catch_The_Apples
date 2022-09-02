@@ -388,6 +388,13 @@ scene("game", () => {
   if (readyButton) {
     destroy(readyButton)
   }
+  playerOnesavedScore = 0;
+  playerTwosavedScore = 0;
+  set(getPlayerOnesavedScore, {
+    playerOnePoints: 0,
+    playerTwoPoints: 0,
+    gameTimer: timeOfGame
+  })
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
@@ -678,9 +685,10 @@ scene("gameOver", () => {
         onClick('reStartTheGame', () => {
           playerOnesavedScore = 0;
           playerTwosavedScore = 0;
+          score = 0
           set(getPlayerOnesavedScore, {
-            playerOnePoints: playerOnesavedScore,
-            playerTwoPoints: playerTwosavedScore,
+            playerOnePoints: 0,
+            playerTwoPoints: 0,
             didGameStart: true,
             gameTimer: 120
           })
@@ -696,6 +704,7 @@ scene("gameOver", () => {
       sTimeOfGame = 10;
       score = 0
     } else {
+      score = 0
       playerOnesavedScore = 0;
       playerTwosavedScore = 0;
       if (playerIs === 'playerTwo') {
