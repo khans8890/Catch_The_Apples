@@ -32,7 +32,7 @@ var playerTwosavedScore = 0;
 var getPlayerTwoReady; 
 var getDidGameStart;
 let timeOfGame = 120;
-let sTimeOfGame = 120;
+let sTimeOfGame = 10;
 let button = document.getElementById('multiplayer-button')
 button.addEventListener('click', () => {
   isTwoPayer = true
@@ -807,7 +807,7 @@ scene("gameOver", () => {
   onClick("reset-button",()=>{
     if (!isTwoPayer) {
       go('game')
-      sTimeOfGame = 10;
+      sTimeOfGame = 120;
       score = 0
     } else {
       score = 0
