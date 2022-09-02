@@ -7,15 +7,14 @@ let gameKeyTojoin;
 //gameKeyTojoin = 'jmfSLwU5/'
 function makeid(length) {
   var result = '';
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
   var charactersLength = characters.length;
   for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() *
-      charactersLength));
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
 }
-gameKeyTojoin = makeid(6)
+gameKeyTojoin = makeid(7)
 let gamedata = {
   reference:''
 }
@@ -258,26 +257,15 @@ scene('waitingLobby', () => {
     fixed()
 
   ])
-  add([
-    text(`Are you ready?`, {
-      size: 50
-    }),
-    pos(100, 160)
-  ])
-  let playerOnetext = add([
-    text(`Player One is ready`, {
-      size: 50
-    }),
-    pos(100, 230)
-  ])
-    let playertwoReadyText = add([
-    text(`Player Two is not ready`, {
-      size: 50
-    }),
-    pos(100, 300)
-    ])
   
   if (playerIs === "playerTwo") {
+    let directions = add([
+      text(`Enter code to join the fun`, {
+        size: 50
+      }),
+      pos(100, 160)
+    ])
+
     let enterKeyToJoin = document.createElement('input')
     document.body.append(enterKeyToJoin)
     enterKeyToJoin.setAttribute("type", "text");
@@ -293,93 +281,132 @@ scene('waitingLobby', () => {
     keySubmmitButton.style.position = "absolute"
     keySubmmitButton.style.top = `${(height() / 2 - 160)}px`
     keySubmmitButton.style.left = `${(width() / 2) + 20}px`
-
+    let isKeyGood = false
     keySubmmitButton.addEventListener('click', () => {
       gameKeyTojoin = enterKeyToJoin.value;
       console.log(gameKeyTojoin)
       gamedata.reference = ref(db, gameKeyTojoin)
-      let readyButtonTwo = document.createElement('button')
-      document.body.append(readyButtonTwo)
-      readyButtonTwo.innerText = 'READY'
-      readyButtonTwo.style.position = "absolute"
-      readyButtonTwo.style.fontSize = '30px'
-      readyButtonTwo.style.borderRadius = '50px'
-      readyButtonTwo.style.backgroundColor = "red"
-      readyButtonTwo.style.top = `${(height() / 2 + 2)}px`
-      readyButtonTwo.style.left = `${(width() / 2) + 20}px`
+      
+
       onValue(gamedata.reference, (snap) => {
         if (snap.val()) {
+          isKeyGood = true;
           playerOnesavedScore = snap.val().playerOnePoints;
           timeOfGame = snap.val().gameTimer;
           playerTwosavedScore = snap.val().playerTwoPoints;
           getPlayerTwoReady = snap.val().isPlayerTwoReady;
           getDidGameStart = snap.val().didGameStart;
-          playerOnetext.onUpdate(() => {
-            if (getDidGameStart) {
-              go('game')
-              readyButtonTwo.remove()
-              enterKeyToJoin.remove()
-              keySubmmitButton.remove()
-            }
-          })
         } else {
           console.log('errrror')
         }
         
       })
-      readyButtonTwo.addEventListener('click', () => {
-        if (playerIs === 'playerTwo') {
-          getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
-          getPlayerTwosavedScore =  ref(db, gameKeyTojoin, 'playerOnePoints');;
-          set(getPlayerOnesavedScore, {
-            playerOnePoints: playerOnesavedScore,
-            playerTwoPoints: playerTwosavedScore,
-            isPlayerTwoReady: true,
-            gameTimer: timeOfGame,
-            didGameStart: getDidGameStart
-          })
-        }
-        playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`
-        console.log('cats')
+      wait(1,()=>{
+      if (isKeyGood) {
+        destroyAll('notAccepted')
+        console.log(1)
+        var readyButtonTwo = document.createElement('button')
+        document.body.append(readyButtonTwo)
+        readyButtonTwo.innerText = 'READY'
+        readyButtonTwo.style.position = "absolute"
+        readyButtonTwo.style.fontSize = '30px'
+        readyButtonTwo.style.borderRadius = '50px'
+        readyButtonTwo.style.backgroundColor = "red"
+        readyButtonTwo.style.top = `${(height() / 2 + 2)}px`
+        readyButtonTwo.style.left = `${(width() / 2) + 20}px`
+        readyButtonTwo.addEventListener('click', () => {
+          destroy(notAccepted);
+          if (playerIs === 'playerTwo') {
+            getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
+            getPlayerTwosavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');;
+            set(getPlayerOnesavedScore, {
+              playerOnePoints: playerOnesavedScore,
+              playerTwoPoints: playerTwosavedScore,
+              isPlayerTwoReady: true,
+              gameTimer: timeOfGame,
+              didGameStart: getDidGameStart
+            })
+          }
+          //playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`
+          console.log('cats')
+          readyButtonTwo.remove()
+        })
+      } else {
+        var notAccepted = add([
+          text(`Code not accepted`, {
+            size: 50
+          }),
+          'notAccepted',
+          pos(100, 260)
+        ])
+      }
       })
       //console.table(playerOnesavedScore, timeOfGame, playerTwosavedScore, getPlayerTwoReady, getDidGameStart)
     })
-
+    directions.onUpdate(() => {
+      if (getDidGameStart) {
+        go('game')
+        enterKeyToJoin.remove()
+        keySubmmitButton.remove()
+      }
+    })
   } else {
+    let playertwoReadyText = add([
+      text(`Send player two the code`, {
+        size: 50
+      }),
+      pos(100, 200)
+    ])
     add([
       text(`Lobby Code: ${gameKeyTojoin}`, {
         size: 50
       }),
-      pos(100, 370)
+      pos(100, 270)
     ])
-    playerOnetext.onUpdate(() => {
-      if (getPlayerTwoReady) {
+    let countOfloop = 0;
+    loop(1,()=>{
+      if (getPlayerTwoReady && countOfloop === 0) {
+        add([
+          text(`PLayer Two is ready`, {
+            size: 50,
+            transform: (idx, ch) => ({
+              color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+              pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+              scale: wave(1, 1.2, time() * 3 + idx),
+              angle: wave(-9, 9, time() * 3 + idx),
+            }),
+          }),
+          pos(100, 370)
+        ])
         add([
           sprite("start-button"),
-          pos(width() / 2 + 200, (height() / 2) - 100),
+          pos(width() / 2 + 200, (height() / 2) + 100),
           origin("center"),
           'startTheGame',
           scale(.2),
           area(),
           fixed()
         ]);
-        playertwoReadyText.text = `Player Two is ready ${getPlayerTwoReady}`;
-      }
-    })
-    onClick('startTheGame', () => {
-      if (getPlayerTwoReady) {
-        set(getPlayerOnesavedScore, {
-          playerOnePoints: playerOnesavedScore,
-          playerTwoPoints: playerTwosavedScore,
-          isPlayerTwoReady: true,
-          didGameStart: true,
-          gameTimer: timeOfGame
+        onClick('startTheGame', () => {
+          if (getPlayerTwoReady) {
+            set(getPlayerOnesavedScore, {
+              playerOnePoints: playerOnesavedScore,
+              playerTwoPoints: playerTwosavedScore,
+              isPlayerTwoReady: true,
+              didGameStart: true,
+              gameTimer: timeOfGame
+            })
+            go('game')
+          } else {
+            console.log('playerTwo is not ready')
+          }
         })
-        go('game')
-      } else {
-        console.log('playerTwo is not ready')
+        wait(1000, () => { })
+        countOfloop++
       }
     })
+    
+    
   }
 })
 // go('waitingLobby');
@@ -436,23 +463,50 @@ scene("game", () => {
       pos(width() - 520, height() - 100)
     ])
   } else {
-    var playerOneScoreText = add([
-      text(`P1 Score: ${0}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
-      pos(10, height() - 100)
-    ])
-    var playerTwoScoreText = add([
-      text(`P2 Score: ${0}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
-      pos(width()-600, height() - 100)
-    ])
-    var timer = add([
-      text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`, { letterSpacing: 0, size: 50 }),
-      pos(width()/2 - 300, height() - 100)
-    ])
+    if (playerIs === 'playerOne') {
+      var playerOneScoreText = add([
+        text(`P1 Score: ${0}`, {
+          letterSpacing: 0, letterSpacing: 3, size: 50,transform: (idx, ch) => ({
+            color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+            scale: wave(1, 1.2, time() * 3 + idx),
+            angle: wave(-9, 9, time() * 3 + idx),
+          }),
+}),
+        pos(10, height() - 100)
+      ])
+      var playerTwoScoreText = add([
+        text(`P2 Score: ${0}`, { letterSpacing: 0, letterSpacing: 3, size: 50 }),
+        pos(width() - 600, height() - 100)
+      ])
+      var timer = add([
+        text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`, { letterSpacing: 0, size: 50 }),
+        pos(width() / 2 - 300, height() - 100)
+      ])
+    } else {
+      var playerOneScoreText = add([
+        text(`P1 Score: ${0}`, {
+          letterSpacing: 0, letterSpacing: 3, size: 50,
+        }),
+        pos(10, height() - 100)
+      ])
+      var playerTwoScoreText = add([
+        text(`P2 Score: ${0}`, {
+          letterSpacing: 0, letterSpacing: 3, size: 50, transform: (idx, ch) => ({
+            color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+            scale: wave(1, 1.2, time() * 3 + idx),
+            angle: wave(-9, 9, time() * 3 + idx),
+          }),
+}),
+        pos(width() - 600, height() - 100)
+      ])
+      var timer = add([
+        text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`, {letterSpacing: 0, size: 50}),
+        pos(width() / 2 - 300, height() - 100)
+      ])
+    }
   }
-
-
-
-  
 
   loop(10, () => {
     // add tree
@@ -627,31 +681,95 @@ scene("gameOver", () => {
           pos(580, 240),
         ])
       } else if (playerOnesavedScore > playerTwosavedScore) {
-        add([
-          text(`Player One Won`),
-          pos(470, 160),
-        ])
-        add([
-          text(`Player one score ${playerOnesavedScore}`, { size: 40 }),
-          pos(560, 240),
-        ])
-        add([
-          text(`Player two score ${playerTwosavedScore}`, { size: 30 }),
-          pos(610, 300),
-        ])
+        if (playerIs === 'playerOne') {
+          add([
+            text(`Player One Won`),
+            pos(470, 160),
+          ])
+          add([
+            text(`Player one score ${playerOnesavedScore}`, {
+              size: 40,
+              transform: (idx, ch) => ({
+                color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+                scale: wave(1, 1.2, time() * 3 + idx),
+                angle: wave(-9, 9, time() * 3 + idx),
+              }),
+            }),
+            pos(560, 240),
+          ])
+          add([
+            text(`Player two score ${playerTwosavedScore}`, { size: 30 }),
+            pos(610, 300),
+          ])
+        } else {
+          add([
+            text(`Player One Won`),
+            pos(470, 160),
+          ])
+          add([
+            text(`Player one score ${playerOnesavedScore}`, {
+              size: 40,
+              
+            }),
+            pos(560, 240),
+          ])
+          add([
+            text(`Player two score ${playerTwosavedScore}`, {
+              size: 30, transform: (idx, ch) => ({
+                color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+                scale: wave(1, 1.2, time() * 3 + idx),
+                angle: wave(-9, 9, time() * 3 + idx),
+              }),
+}),
+            pos(610, 300),
+          ])
+        }
       } else {
-        add([
-          text(`Player Two Won`),
-          pos(470, 160),
-        ])
-        add([
-          text(`Player two score ${playerTwosavedScore}`, { size: 40 }),
-          pos(560, 240),
-        ])
-        add([
-          text(`Player one score ${playerOnesavedScore}`, { size: 30 }),
-          pos(610, 300),
-        ])
+        if (playerIs === 'playerOne') {
+          add([
+            text(`Player Two Won`),
+            pos(470, 160),
+          ])
+          add([
+            text(`Player two score ${playerTwosavedScore}`, { size: 40 }),
+            pos(560, 240),
+          ])
+          add([
+            text(`Player one score ${playerOnesavedScore}`, {
+              size: 30, transform: (idx, ch) => ({
+                color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+                scale: wave(1, 1.2, time() * 3 + idx),
+                angle: wave(-9, 9, time() * 3 + idx),
+              }),
+}),
+            pos(610, 300),
+          ])
+        } else {
+          add([
+            text(`Player Two Won`),
+            pos(470, 160),
+          ])
+          add([
+            text(`Player two score ${playerTwosavedScore}`, {
+              size: 40
+            
+              , transform: (idx, ch) => ({
+                color: hsl2rgb((time() * 0.2 + idx * 0.2) % 1, 9, 7),
+                scale: wave(1, 1.2, time() * 3 + idx),
+                angle: wave(-9, 9, time() * 3 + idx),
+              }),
+            
+            
+            }),
+            pos(560, 240),
+          ])
+          add([
+            text(`Player one score ${playerOnesavedScore}`, {
+              size: 30
+            }),
+            pos(610, 300),
+          ])
+        }
       }
     })
   }
@@ -723,4 +841,3 @@ scene("gameOver", () => {
     }
   })
 });
-
