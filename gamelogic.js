@@ -4,18 +4,18 @@ import db from './database.js';
 let isTwoPayer = false;
 let playerIs = 'playerOne'
 let gameKeyTojoin;
-gameKeyTojoin = 'jmfSLwU5/'
-// function makeid(length) {
-//   var result = '';
-//   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//   var charactersLength = characters.length;
-//   for (var i = 0; i < length; i++) {
-//     result += characters.charAt(Math.floor(Math.random() *
-//       charactersLength));
-//   }
-//   return result;
-// }
-
+//gameKeyTojoin = 'jmfSLwU5/'
+function makeid(length) {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() *
+      charactersLength));
+  }
+  return result;
+}
+gameKeyTojoin = makeid(6)
 let gamedata = {
   reference:''
 }
@@ -32,8 +32,8 @@ var playerOnesavedScore = 0;
 var playerTwosavedScore = 0;
 var getPlayerTwoReady; 
 var getDidGameStart;
-let timeOfGame = 120;
-let sTimeOfGame = 2;
+let timeOfGame = 10;
+let sTimeOfGame = 120;
 let button = document.getElementById('multiplayer-button')
 button.addEventListener('click', () => {
   isTwoPayer = true
@@ -45,7 +45,7 @@ button.addEventListener('click', () => {
     playerTwoPoints: 0,
     isPlayerTwoReady: false,
     didGameStart: false,
-    gameTimer: 120
+    gameTimer: timeOfGame
   })
   onValue(getPlayerOnesavedScore, (snap) => {
     playerOnesavedScore = snap.val().playerOnePoints;
@@ -317,9 +317,9 @@ scene('waitingLobby', () => {
           playerOnetext.onUpdate(() => {
             if (getDidGameStart) {
               go('game')
-              keySubmmitButton.style.display = 'none';
-              enterKeyToJoin.style.display = 'none';
-              readyButtonTwo.style.display = 'none';
+              readyButtonTwo.remove()
+              enterKeyToJoin.remove()
+              keySubmmitButton.remove()
             }
           })
         } else {
@@ -335,7 +335,7 @@ scene('waitingLobby', () => {
             playerOnePoints: playerOnesavedScore,
             playerTwoPoints: playerTwosavedScore,
             isPlayerTwoReady: true,
-            gameTimer: 120,
+            gameTimer: timeOfGame,
             didGameStart: getDidGameStart
           })
         }
@@ -373,7 +373,7 @@ scene('waitingLobby', () => {
           playerTwoPoints: playerTwosavedScore,
           isPlayerTwoReady: true,
           didGameStart: true,
-          gameTimer: 120
+          gameTimer: timeOfGame
         })
         go('game')
       } else {
@@ -425,7 +425,7 @@ scene("game", () => {
       pos(10, height() - 100)
     ])
     var timer = add([
-      text(`Timer:${new Date(timeOfGame * 1000).toISOString().substring(14, 19)}`, { letterSpacing: 0, letterSpacing: 3}),
+      text(`Timer:${new Date(sTimeOfGame * 1000).toISOString().substring(14, 19)}`, { letterSpacing: 0, letterSpacing: 3}),
       pos(width() - 520, height() - 100)
     ])
   } else {
@@ -609,55 +609,109 @@ scene("gameOver", () => {
       scale(1.26)
     ])
   } else {
-    if (playerOnesavedScore === playerTwosavedScore) { 
-      add([
-        text(`It was a draw! wow`),
-        pos(400, 160),
-      ])
-      add([
-        text(`You both get ${playerOnesavedScore} points`, { size: 40 }),
-        pos(580, 240),
-      ])
-    } else if (playerOnesavedScore > playerTwosavedScore) {
-      add([
-        text(`Player One Won`),
-        pos(470, 160),
-      ])
-      add([
-        text(`Player one score ${playerOnesavedScore}`,{size:40}),
-        pos(560, 240),
-      ])
-      add([
-        text(`Player two score ${playerTwosavedScore}`, { size: 30 }),
-        pos(610, 300),
-      ])
-    } else {
-      add([
-        text(`Player Two Won`),
-        pos(470, 160),
-      ])
-      add([
-        text(`Player two score ${playerTwosavedScore}`, { size: 40 }),
-        pos(560, 240),
-      ])
-      add([
-        text(`Player one score ${playerOnesavedScore}`, { size: 30 }),
-        pos(610, 300),
-      ])
-    }
+    wait(3, () => {
+      if (playerOnesavedScore === playerTwosavedScore) {
+        add([
+          text(`It was a draw! wow`),
+          pos(400, 160),
+        ])
+        add([
+          text(`You both get ${playerOnesavedScore} points`, { size: 40 }),
+          pos(580, 240),
+        ])
+      } else if (playerOnesavedScore > playerTwosavedScore) {
+        add([
+          text(`Player One Won`),
+          pos(470, 160),
+        ])
+        add([
+          text(`Player one score ${playerOnesavedScore}`, { size: 40 }),
+          pos(560, 240),
+        ])
+        add([
+          text(`Player two score ${playerTwosavedScore}`, { size: 30 }),
+          pos(610, 300),
+        ])
+      } else {
+        add([
+          text(`Player Two Won`),
+          pos(470, 160),
+        ])
+        add([
+          text(`Player two score ${playerTwosavedScore}`, { size: 40 }),
+          pos(560, 240),
+        ])
+        add([
+          text(`Player one score ${playerOnesavedScore}`, { size: 30 }),
+          pos(610, 300),
+        ])
+      }
+    })
   }
-
-  let reset = add([
-    sprite("reset"),
-    scale(.6),
-    area(),
-    pos(680, 500),
-    "reset-button"
-
-  ])
+  
+  if (!isTwoPayer) {
+    let reset = add([
+      sprite("reset"),
+      scale(.6),
+      area(),
+      pos(680, 500),
+      "reset-button"
+    ])
+  } else if( playerIs === "playerTwo"){
+    let reset = add([
+      sprite("reset"),
+      scale(.6),
+      area(),
+      pos(680, 500),
+      "reset-button"
+    ])
+  } else {
+    loop(1,()=>{
+      if (getPlayerTwoReady) {
+        let reset = add([
+          sprite("reset"),
+          scale(.6),
+          area(),
+          pos(680, 500),
+          "reStartTheGame"
+        ])
+        onClick('reStartTheGame', () => {
+          playerOnesavedScore = 0;
+          playerTwosavedScore = 0;
+          set(getPlayerOnesavedScore, {
+            playerOnePoints: playerOnesavedScore,
+            playerTwoPoints: playerTwosavedScore,
+            didGameStart: true,
+            gameTimer: 120
+          })
+          go('game')
+        })
+        
+      }
+    })
+  }
   onClick("reset-button",()=>{
-    go('game')
-    timeOfGame = 60;
+    if (!isTwoPayer) {
+      go('game')
+      sTimeOfGame = 10;
+      score = 0
+    } else {
+      playerOnesavedScore = 0;
+      playerTwosavedScore = 0;
+      if (playerIs === 'playerTwo') {
+          set(getPlayerTwosavedScore, {
+            playerOnePoints: 0,
+            playerTwoPoints: 0,
+            gameTimer: 120,
+            isPlayerTwoReady:true
+          })
+          gameOverText.onUpdate(() => {
+            if (getDidGameStart) {
+              go('game')
+            }
+          })
+      }
+    }
   })
 });
 
