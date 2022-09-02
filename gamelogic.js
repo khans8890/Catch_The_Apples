@@ -65,7 +65,7 @@ let kB = kaboom();
 
 // add a piece of text at position (120, 80)
 loadSprite("background", "testingbackground.gif")
-loadSprite("barrel", "myNewBarrel.png")
+loadSprite("barrel", "output-onlinepngtools (2).png")
 loadSprite('speedPower', 'testingPower.jpg')
 loadSprite("apple", "apple.png");
 loadSprite("badApple", "badApple.png");
