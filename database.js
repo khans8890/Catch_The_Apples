@@ -23,5 +23,4 @@ let ptag = document.getElementById('test')
 const db = getDatabase()
 const reference = ref(db, 'jmfSLwU5/')
 
-
 export default db;
