@@ -16,7 +16,7 @@ let gamedata = {reference: ''};
 
 function makeid(length) {
   let result = '';
-  let characters = 'abcdefghijklmnopqrstuvwxyz123456789!@#$%&';
+  let characters = 'abcdefghijklmnopqrstuvwxyz123456789';
   let charactersLength = characters.length;
   for (var i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -58,7 +58,7 @@ var audio = document.querySelector("audio");
 var playAudio = document.body.querySelectorAll("button")[0];
 var pauseAudio = document.body.querySelectorAll("button")[1];
 var soloButton = document.querySelectorAll("button")[3];
-gameKeyTojoin = makeid(7);
+gameKeyTojoin = makeid(8);
 
 // event listeners 
 playAudio.addEventListener("click", () => {
