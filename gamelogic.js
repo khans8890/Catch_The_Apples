@@ -12,19 +12,45 @@ var playerTwosavedScore = 0;
 let timeOfGame = 120;
 let sTimeOfGame = 10;
 var score = 0;
-var countDown = 60;
 let gamedata = {reference: ''};
 
 function makeid(length) {
-  var result = '';
-  var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
+  let result = '';
+  let characters = 'abcdefghijklmnopqrstuvwxyz123456789!@#$%&';
+  let charactersLength = characters.length;
   for (var i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   };
   return result;
 };
-gameKeyTojoin = makeid(7);
+
+function rulesPopUp(txt, p, f) {
+  const rules = add([
+    text("Rules"),
+    pos(100, 500),
+    area({ cursor: "pointer", }),
+    scale(1),
+    origin("center"),
+  ]);
+
+  rules.onClick(f);
+
+  rules.onUpdate(() => {
+    if (rules.isHovering()) {
+      const t = time() * 10
+      rules.color = rgb(
+        wave(0, 255, t),
+        wave(0, 225, t + 2),
+        wave(0, 255, t + 4),
+      );
+      rules.scale = vec2(1.2)
+    } else {
+      rules.scale = vec2(1)
+      rules.color = rgb()
+    }
+  });
+}
+
 // dom elements
 let setPlayerTwoButton = document.getElementById('join-lobby-button');
 let multiplayerbutton = document.getElementById('multiplayer-button');
@@ -32,7 +58,7 @@ var audio = document.querySelector("audio");
 var playAudio = document.body.querySelectorAll("button")[0];
 var pauseAudio = document.body.querySelectorAll("button")[1];
 var soloButton = document.querySelectorAll("button")[3];
-var lobbyButton = document.querySelectorAll("button")[4];
+gameKeyTojoin = makeid(7);
 
 // event listeners 
 playAudio.addEventListener("click", () => {
@@ -89,11 +115,8 @@ multiplayerbutton.addEventListener('click', () => {
   })
 
   go('waitingLobby');
-
-  onClick('startgame', () => {
-    go('game')
-  });
 });
+
 
 // initialize kaboom context
 kaboom({
@@ -112,7 +135,6 @@ loadSprite("clearsky", "gameSprites/background2.jpg");
 loadSprite("bluesky-startpage", "gameSprites/My project (1).jpg");
 loadSprite("cloud", "gameSprites/cloud-new.png");
 loadSprite("start-button", "gameSprites/start-button.png");
-//loadSprite("rules-icon", "gameSprites/questionmark.jpg");
 gravity(80)
 
 scene("intro", () => {
@@ -181,38 +203,11 @@ scene("intro", () => {
     ])
   ));
 
-  onClick("rules-section", () => { destroyAll("rules-section") });
+  onClick("rules-section", () => {destroyAll("rules-section")});
   onUpdate(() => cursor("default"));
 });
 
 go('intro');
-
-function rulesPopUp(txt, p, f) {
-  const rules = add([
-    text("Rules"),
-    pos(100, 500),
-    area({ cursor: "pointer", }),
-    scale(1),
-    origin("center"),
-  ]);
-
-  rules.onClick(f);
-
-  rules.onUpdate(() => {
-    if (rules.isHovering()) {
-      const t = time() * 10
-      rules.color = rgb(
-        wave(0, 255, t),
-        wave(0, 225, t + 2),
-        wave(0, 255, t + 4),
-      );
-      rules.scale = vec2(1.2)
-    } else {
-      rules.scale = vec2(1)
-      rules.color = rgb()
-    }
-  });
-}
 
 rulesPopUp("Rules", vec2(200, 100), () => debug.log("hi!"));
 rulesPopUp("Rules", vec2(200, 200), () => debug.log("bye"));
@@ -232,11 +227,10 @@ scene('waitingLobby', () => {
 
   if (playerIs === "playerTwo") {
     let directions = add([
-      text(`Enter code to join the fun`, {
-        size: 50
-      }),
+      text(`Enter code to join the fun`, {size: 50}),
       pos(100, 160)
     ]);
+    
     let isKeyGood = false;
 
     let enterKeyToJoin = document.createElement('input');
@@ -267,8 +261,6 @@ scene('waitingLobby', () => {
           playerTwosavedScore = snap.val().playerTwoPoints;
           getPlayerTwoReady = snap.val().isPlayerTwoReady;
           getDidGameStart = snap.val().didGameStart;
-        } else {
-          console.log('errrror')
         }
       });
 
@@ -286,8 +278,6 @@ scene('waitingLobby', () => {
           readyButtonTwo.style.left = `${(width() / 2) + 20}px`;
 
           readyButtonTwo.addEventListener('click', () => {
-            destroy(notAccepted);
-            if (playerIs === 'playerTwo') {
               getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
               set(getPlayerOnesavedScore, {
                 playerOnePoints: playerOnesavedScore,
@@ -296,14 +286,11 @@ scene('waitingLobby', () => {
                 gameTimer: timeOfGame,
                 didGameStart: getDidGameStart
               });
-            }
             readyButtonTwo.remove();
           })
         } else {
-          var notAccepted = add([
-            text(`Code not accepted`, {
-              size: 50
-            }),
+          add([
+            text(`Code not accepted`, {size: 50}),
             'notAccepted',
             pos(100, 260)
           ]);
@@ -321,16 +308,12 @@ scene('waitingLobby', () => {
 
   } else {
     add([
-      text(`Send player two the code`, {
-        size: 50
-      }),
+      text(`Send player two the code:`, {size: 50}),
       pos(100, 200)
     ]);
 
     add([
-      text(`Lobby Code: ${gameKeyTojoin}`, {
-        size: 50
-      }),
+      text(`Lobby Code: ${gameKeyTojoin}`, {size: 50}),
       pos(100, 270)
     ]);
 
@@ -361,20 +344,15 @@ scene('waitingLobby', () => {
         ]);
 
         onClick('startTheGame', () => {
-          if (getPlayerTwoReady) {
-            set(getPlayerOnesavedScore, {
-              playerOnePoints: playerOnesavedScore,
-              playerTwoPoints: playerTwosavedScore,
-              isPlayerTwoReady: true,
-              didGameStart: true,
-              gameTimer: timeOfGame
-            })
-            go('game');
-          } else {
-            console.log('playerTwo is not ready');
-          }
+          set(getPlayerOnesavedScore, {
+            playerOnePoints: playerOnesavedScore,
+            playerTwoPoints: playerTwosavedScore,
+            isPlayerTwoReady: true,
+            didGameStart: true,
+            gameTimer: timeOfGame
+          })
+          go('game');
         })
-        wait(1000, () => { });
         countOfloop++;
       }
     })
@@ -383,6 +361,12 @@ scene('waitingLobby', () => {
 // go('waitingLobby');
 ///game -------------------------------------------------------------------------------------------------------------------------------------------------
 scene("game", () => {
+  let spawnSpeed = 1;
+  let appleFallSpeed = 200
+  let spawnRate = 1;
+  let barrelSpeed = 400;
+  var countDown = 0;
+
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
@@ -401,6 +385,25 @@ scene("game", () => {
     color(102, 189, 88)
   ]);
 
+  let barrel = add([
+    sprite("barrel"),
+    scale(0.2),
+    'tag2',
+    pos(0, 500),
+    area()
+  ]);
+
+  loop(10, () => {
+    add([
+      sprite('speedPower'),
+      pos(rand(vec2(width())).x, 10),
+      `tag1`,
+      area(),
+      scale(.2),
+      move(DOWN, 240),
+    ]);
+  });
+
   onCollide('fallingApple', 'floor', (ap) => { destroy(ap) });
   onCollide('newBadApple', 'floor', (ap,) => { destroy(ap) });
   onCollide('newBadApple', 'tag2', (ap,) => {
@@ -409,6 +412,14 @@ scene("game", () => {
     if (!isTwoPayer) {
       scoreText.text = `Score: ${score}`;
     }
+  });
+
+  onCollide('tag1', 'tag2', (ap,) => {
+    barrelSpeed = 1000
+    destroy(ap)
+    wait(5, () => {
+      barrelSpeed = 400
+    });
   });
 
   if (!isTwoPayer) {
@@ -472,26 +483,7 @@ scene("game", () => {
     }
   }
 
-  loop(10, () => {
-    add([
-      sprite('speedPower'),
-      pos(rand(vec2(width())).x, 10),
-      `tag1`,
-      area(),
-      scale(.2),
-      move(DOWN, 240),
-    ]);
-  });
-
-  let barrel = add([
-    sprite("barrel"),
-    scale(0.2),
-    'tag2',
-    pos(0, 500),
-    area()
-  ]);
-
-  let barrelSpeed = 400;
+  
 
   barrel.onUpdate(() => {
     if (mousePos().x > 86 && mousePos().x < width() - 86 || barrel.pos.x > 0 && barrel.pos.x < width() - 170) {
@@ -502,18 +494,6 @@ scene("game", () => {
       playerTwoScoreText.text = `P2 Score: ${playerTwosavedScore}`;
     }
   })
-
-  barrel.onCollide('tag1', (power) => {
-    barrelSpeed = 1000
-    destroy(power)
-    wait(5, () => {
-      barrelSpeed = 400
-    });
-  });
-
-  let spawnSpeed = 1;
-  let appleFallSpeed = 200
-  let spawnRate = 1;
 
   // functionality of apple
   loop(spawnSpeed, () => {
@@ -560,7 +540,7 @@ scene("game", () => {
 
   // timer
   loop(1, () => {
-    countDown--;
+    countDown++;
     if (countDown % 10 === 0) {
       if (spawnSpeed > 0.3) {
         spawnSpeed -= 0.2;
@@ -573,9 +553,6 @@ scene("game", () => {
     }
     if (countDown % 20 === 0 && spawnRate < 10) {
       spawnRate++;
-    }
-    if (timeOfGame <= 0) {
-      go('gameOver');
     }
   })
 
@@ -597,6 +574,9 @@ scene("game", () => {
             playerTwoPoints: score,
             gameTimer: timeOfGame
           });
+        }
+        if (timeOfGame <= 0) {
+          go('gameOver');
         }
       } else {
         sTimeOfGame--;
