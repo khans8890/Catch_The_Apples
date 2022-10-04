@@ -1,7 +1,6 @@
-# Catch The Apples ~:apple: ~:basket: 
-2d platform game where user tries to catch apples falling from the sky in an attempt to avoid rotten apples. Features like music and a timer make the game more intensive for the user when paired with the time constraint, the same time constraint a user can pick and choose.
+# Catch The Apples :apple::basket: 
 
-# Live app [here](https://khans8890.github.io/Catch_The_Apples/)
+ Game Link [here](https://khans8890.github.io/Catch_The_Apples/)
 
 ***Team:***
 
