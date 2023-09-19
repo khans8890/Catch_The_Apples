@@ -1,5 +1,6 @@
 import { onValue, ref, set } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-database.js";
 import db from './database.js';
+import kaboom from "https://unpkg.com/kaboom/dist/kaboom.mjs"
 
 let gameKeyTojoin;
 let getPlayerOnesavedScore;
@@ -30,7 +31,7 @@ function rulesPopUp(txt, p, f) {
     pos(100, 500),
     area({ cursor: "pointer", }),
     scale(1),
-    origin("center"),
+    // origin("center"),
   ]);
 
   rules.onClick(f);
@@ -135,13 +136,13 @@ loadSprite("clearsky", "gameSprites/background2.jpg");
 loadSprite("bluesky-startpage", "gameSprites/My project (1).jpg");
 loadSprite("cloud", "gameSprites/cloud-new.png");
 loadSprite("start-button", "gameSprites/start-button.png");
-gravity(80)
+setGravity(80)
 
 scene("intro", () => {
   let background = add([
     sprite("bluesky-startpage"),
-    pos(width() / 2, height() / 2),
-    origin("center"),
+    pos(0,0),
+    // pos(center()),
     scale(2),
     fixed()
   ]);
@@ -167,7 +168,7 @@ scene("intro", () => {
       pos(1350, 40),
       area({ cursor: "pointer", }),
       scale(1),
-      origin("center"),
+      // pos(center())
     ]);
 
     rules.onClick(f);
@@ -204,14 +205,14 @@ scene("intro", () => {
   ));
 
   onClick("rules-section", () => {destroyAll("rules-section")});
-  onUpdate(() => cursor("default"));
+  onUpdate(() => setCursor("default"));
 });
 
 go('intro');
 
 rulesPopUp("Rules", vec2(200, 100), () => debug.log("hi!"));
 rulesPopUp("Rules", vec2(200, 200), () => debug.log("bye"));
-onUpdate(() => cursor("default"));
+onUpdate(() => setCursor("default"));
 
 ///waitingLobby -------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -219,7 +220,7 @@ scene('waitingLobby', () => {
   let background = add([
     sprite("bluesky-startpage"),
     pos(width() / 2, height() / 2),
-    origin("center"),
+    // origin("center"),
     scale(2),
     fixed()
 
@@ -336,7 +337,7 @@ scene('waitingLobby', () => {
         add([
           sprite("start-button"),
           pos(width() / 2 + 200, (height() / 2) + 100),
-          origin("center"),
+          // origin("center"),
           'startTheGame',
           scale(.2),
           area(),
@@ -369,8 +370,9 @@ scene("game", () => {
 
   let background = add([
     sprite("clearsky"),
-    pos(width() / 2, height() / 2),
-    origin("center"),
+    pos(0,0),
+    // pos(width() / 2, height() / 2),
+    // origin("center"),
     scale(2),
     fixed()
   ]);
@@ -595,7 +597,7 @@ scene("gameOver", () => {
   let background = add([
     sprite("clearsky"),
     pos(width() / 2, height() / 2),
-    origin("center"),
+    // origin("center"),
     scale(2),
     fixed()
   ]);
