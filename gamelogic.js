@@ -11,10 +11,10 @@ let playerIs = 'playerOne';
 var playerOnesavedScore = 0;
 var playerTwosavedScore = 0;
 let timeOfGame = 120;
-let sTimeOfGame = 10;
+let sTimeOfGame = 60;
 var score = 0;
-let gamedata = {reference: ''};
-
+let gamedata = { reference: '' };
+let musicPlaing = false
 function makeid(length) {
   let result = '';
   let characters = 'abcdefghijklmnopqrstuvwxyz123456789';
@@ -54,69 +54,16 @@ function rulesPopUp(txt, p, f) {
 
 // dom elements
 let setPlayerTwoButton = document.getElementById('join-lobby-button');
-let multiplayerbutton = document.getElementById('multiplayer-button');
-var audio = document.querySelector("audio");
-var playAudio = document.body.querySelectorAll("button")[0];
-var pauseAudio = document.body.querySelectorAll("button")[1];
-var soloButton = document.querySelectorAll("button")[3];
 gameKeyTojoin = makeid(8);
 
-// event listeners 
-playAudio.addEventListener("click", () => {
-  if (!audio.play()) {
-    audio.play();
-  }
-});
-pauseAudio.addEventListener("click", () => {
-  if (!audio.pause()) {
-    audio.pause();
-  }
-});
+
 
 setPlayerTwoButton.addEventListener('click', () => {
   isTwoPayer = true;
   playerIs = 'playerTwo';
-  soloButton.style.display = "none";
-  multiplayerbutton.style.display = "none";
   setPlayerTwoButton.style.display = "none";
   go('waitingLobby');
 })
-
-soloButton.addEventListener("click", () => {
-  multiplayerbutton.style.display = "none";
-  setPlayerTwoButton.style.display = "none";
-  onClick('startgame', () => {
-    go('game')
-    soloButton.style.display = "none";
-  });
-});
-
-multiplayerbutton.addEventListener('click', () => {
-  soloButton.style.display = "none";
-  multiplayerbutton.style.display = "none";
-  setPlayerTwoButton.style.display = "none";
-  isTwoPayer = true;
-  gamedata.reference = ref(db, gameKeyTojoin);
-  getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
-
-  set(gamedata.reference, {
-    playerOnePoints: 0,
-    playerTwoPoints: 0,
-    isPlayerTwoReady: false,
-    didGameStart: false,
-    gameTimer: timeOfGame
-  });
-
-  onValue(getPlayerOnesavedScore, (snap) => {
-    playerOnesavedScore = snap.val().playerOnePoints;
-    playerTwosavedScore = snap.val().playerTwoPoints;
-    getPlayerTwoReady = snap.val().isPlayerTwoReady;
-    timeOfGame = snap.val().gameTimer;
-    getDidGameStart = snap.val().didGameStart;
-  })
-
-  go('waitingLobby');
-});
 
 
 // initialize kaboom context
@@ -139,9 +86,10 @@ loadSprite("start-button", "gameSprites/start-button.png");
 setGravity(80)
 
 scene("intro", () => {
+  loadSound("music", '/howler-demo-bg-music.mp3')
   let background = add([
     sprite("bluesky-startpage"),
-    pos(0,0),
+    pos(0, 0),
     // pos(center()),
     scale(2),
     fixed()
@@ -153,24 +101,136 @@ scene("intro", () => {
     scale(.5),
     width(5),
   ]);
-  
-  let start = add([
-    sprite("start-button"),
-    pos(500, 550),
-    scale(.4),
-    area(),
-    "startgame"
+
+  add([
+    pos(190, 460),
+    rect(260, 40),
+    outline(4),
+  ])
+
+  let joinLobbyButton = add([
+    text("Join Lobby"),
+    pos(200, 465),
+    color(0, 0, 0),
+    area({ cursor: "pointer", }),
+    scale(1),
+    // pos(center())
+  ]);
+  joinLobbyButton.onClick(() => {
+    if (musicPlaing === false) {
+      play("music", { loop: true })
+      musicPlaing = true
+    }
+    isTwoPayer = true;
+    playerIs = 'playerTwo';
+    setPlayerTwoButton.style.display = "none";
+    go('waitingLobby');
+  })
+  add([
+    pos(190, 395),
+    rect(260, 40),
+    outline(4),
+  ])
+
+  let multiplayerPlayerButton = add([
+    text("Multiplayer"),
+    pos(200, 400),
+    color(0, 0, 0),
+    area({ cursor: "pointer", }),
+    scale(1),
+    // pos(center())
   ]);
 
+  multiplayerPlayerButton.onClick(() => {
+    if (musicPlaing === false) {
+      play("music", { loop: true })
+      musicPlaing = true
+    }
+    play("music")
+    isTwoPayer = true;
+    gamedata.reference = ref(db, gameKeyTojoin);
+    getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
+
+    set(gamedata.reference, {
+      playerOnePoints: 0,
+      playerTwoPoints: 0,
+      isPlayerTwoReady: false,
+      didGameStart: false,
+      gameTimer: timeOfGame
+    });
+
+    onValue(getPlayerOnesavedScore, (snap) => {
+      playerOnesavedScore = snap.val().playerOnePoints;
+      playerTwosavedScore = snap.val().playerTwoPoints;
+      getPlayerTwoReady = snap.val().isPlayerTwoReady;
+      timeOfGame = snap.val().gameTimer;
+      getDidGameStart = snap.val().didGameStart;
+    })
+
+    go('waitingLobby');
+  })
+
+  add([
+    pos(500, 395),
+    rect(140, 40),
+    outline(4),
+  ])
+
+  let singlePlayerButton = add([
+    text("Single"),
+    pos(505, 400),
+    color(0, 0, 0),
+    area({ cursor: "pointer", }),
+    scale(1),
+    sTimeOfGame = 120
+    // pos(center())
+  ]);
+  singlePlayerButton.onClick(() => {
+    if (musicPlaing === false) {
+      play("music", { loop: true })
+      musicPlaing = true
+    }
+    go('game')
+  })
+
+  add([
+    pos(690, 395),
+    rect(230, 40),
+    outline(4),
+  ])
+
+  let quickTestButton = add([
+    text("Qucik Game"),
+    pos(695, 400),
+    color(0, 0, 0),
+    area({ cursor: "pointer", }),
+    scale(1),
+    // pos(center())
+  ]);
+  quickTestButton.onClick(() => {
+    if (musicPlaing === false) {
+      play("music", { loop: true })
+      musicPlaing = true
+    }
+    sTimeOfGame = 30
+    go('game')
+  })
+
   function rulesPopUp(txt, p, f) {
+    const box = add([
+      pos(1145, 35),
+      rect(120, 45),
+      outline(4),
+      area(),
+    ])
     const rules = add([
       text("Rules"),
-      pos(1350, 40),
+      pos(1150, 40),
+      color(0, 0, 0),
       area({ cursor: "pointer", }),
       scale(1),
       // pos(center())
     ]);
-
     rules.onClick(f);
 
     rules.onUpdate(() => {
@@ -182,9 +242,17 @@ scene("intro", () => {
           wave(0, 255, t + 4),
         );
         rules.scale = vec2(1.2);
+        rules.pos = vec2(1140, 35);
+
+        box.scale = vec2(1.2);
+        box.pos = vec2(1135, 30);
       } else {
         rules.scale = vec2(1);
-        rules.color = rgb();
+        rules.color = rgb(0, 0, 0)
+        rules.pos = vec2(1150, 40);
+
+        box.scale = vec2(1);
+        box.pos = vec2(1145, 35);
       }
     });
   }
@@ -198,13 +266,13 @@ scene("intro", () => {
           color: rgb(255, 217, 75)
         })
       }),
-      pos(1130, 100),
+      pos(1000, 100),
       "rules-section",
       area(),
     ])
   ));
 
-  onClick("rules-section", () => {destroyAll("rules-section")});
+  onClick("rules-section", () => { destroyAll("rules-section") });
   onUpdate(() => setCursor("default"));
 });
 
@@ -219,7 +287,7 @@ onUpdate(() => setCursor("default"));
 scene('waitingLobby', () => {
   let background = add([
     sprite("bluesky-startpage"),
-    pos(width() / 2, height() / 2),
+    pos(0, 0),
     // origin("center"),
     scale(2),
     fixed()
@@ -228,10 +296,11 @@ scene('waitingLobby', () => {
 
   if (playerIs === "playerTwo") {
     let directions = add([
-      text(`Enter code to join the fun`, {size: 50}),
+      text(`Enter code to join the fun`, { size: 50 }),
+      color(rgb(0, 0, 0)),
       pos(100, 160)
     ]);
-    
+
     let isKeyGood = false;
 
     let enterKeyToJoin = document.createElement('input');
@@ -249,7 +318,7 @@ scene('waitingLobby', () => {
     keySubmmitButton.style.position = "absolute";
     keySubmmitButton.style.top = `${(height() / 2 - 160)}px`;
     keySubmmitButton.style.left = `${(width() / 2) + 20}px`;
-    
+
     keySubmmitButton.addEventListener('click', () => {
       gameKeyTojoin = enterKeyToJoin.value;
       gamedata.reference = ref(db, gameKeyTojoin);
@@ -279,19 +348,19 @@ scene('waitingLobby', () => {
           readyButtonTwo.style.left = `${(width() / 2) + 20}px`;
 
           readyButtonTwo.addEventListener('click', () => {
-              getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
-              set(getPlayerOnesavedScore, {
-                playerOnePoints: playerOnesavedScore,
-                playerTwoPoints: playerTwosavedScore,
-                isPlayerTwoReady: true,
-                gameTimer: timeOfGame,
-                didGameStart: getDidGameStart
-              });
+            getPlayerOnesavedScore = ref(db, gameKeyTojoin, 'playerOnePoints');
+            set(getPlayerOnesavedScore, {
+              playerOnePoints: playerOnesavedScore,
+              playerTwoPoints: playerTwosavedScore,
+              isPlayerTwoReady: true,
+              gameTimer: timeOfGame,
+              didGameStart: getDidGameStart
+            });
             readyButtonTwo.remove();
           })
         } else {
           add([
-            text(`Code not accepted`, {size: 50}),
+            text(`Code not accepted`, { size: 50 }),
             'notAccepted',
             pos(100, 260)
           ]);
@@ -309,14 +378,34 @@ scene('waitingLobby', () => {
 
   } else {
     add([
-      text(`Send player two the code:`, {size: 50}),
+      text(`Send player two the code`, { size: 50 }),
+      color(rgb(0, 0, 0)),
       pos(100, 200)
     ]);
 
     add([
-      text(`Lobby Code: ${gameKeyTojoin}`, {size: 50}),
+      text(`Lobby Code: ${gameKeyTojoin}`, { size: 50 }),
+      color(rgb(0, 0, 0)),
       pos(100, 270)
     ]);
+
+    add([
+      pos(750, 270),
+      rect(110, 45),
+      outline(4),
+    ])
+
+    let copyButton = add([
+      text("Copy"),
+      pos(755, 275),
+      color(0, 0, 0),
+      area({ cursor: "pointer", }),
+      scale(1),
+      // pos(center())
+    ]);
+    copyButton.onClick(() => {
+      navigator.clipboard.writeText(gameKeyTojoin)
+    })
 
     let countOfloop = 0;
     loop(1, () => {
@@ -356,6 +445,7 @@ scene('waitingLobby', () => {
         })
         countOfloop++;
       }
+
     })
   }
 })
@@ -370,7 +460,7 @@ scene("game", () => {
 
   let background = add([
     sprite("clearsky"),
-    pos(0,0),
+    pos(0, 0),
     // pos(width() / 2, height() / 2),
     // origin("center"),
     scale(2),
@@ -485,7 +575,7 @@ scene("game", () => {
     }
   }
 
-  
+
 
   barrel.onUpdate(() => {
     if (mousePos().x > 86 && mousePos().x < width() - 86 || barrel.pos.x > 0 && barrel.pos.x < width() - 170) {
@@ -596,7 +686,7 @@ scene("game", () => {
 scene("gameOver", () => {
   let background = add([
     sprite("clearsky"),
-    pos(width() / 2, height() / 2),
+    pos(0,),
     // origin("center"),
     scale(2),
     fixed()
@@ -787,7 +877,7 @@ scene("gameOver", () => {
           if (getDidGameStart) {
             go('game');
           }
-        }); 
+        });
       }
     }
   })
