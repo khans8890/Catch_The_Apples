@@ -53,17 +53,7 @@ function rulesPopUp(txt, p, f) {
 }
 
 // dom elements
-let setPlayerTwoButton = document.getElementById('join-lobby-button');
 gameKeyTojoin = makeid(8);
-
-
-
-setPlayerTwoButton.addEventListener('click', () => {
-  isTwoPayer = true;
-  playerIs = 'playerTwo';
-  setPlayerTwoButton.style.display = "none";
-  go('waitingLobby');
-})
 
 
 // initialize kaboom context
