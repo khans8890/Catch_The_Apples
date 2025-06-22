@@ -76,7 +76,8 @@ loadSprite("start-button", "gameSprites/start-button.png");
 setGravity(80)
 
 scene("intro", () => {
-  loadSound("music", '/howler-demo-bg-music.mp3')
+  loadSound("music", './howler-demo-bg-music.mp3')
+
   let background = add([
     sprite("bluesky-startpage"),
     pos(0, 0),
